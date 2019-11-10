@@ -71,5 +71,11 @@ mod test {
 		assert_eq!(json_til, "{\"hour\":11,\"minute\":22,\"second\":33}");
 		let fjson_til: TimeLen = from_str("{\"hour\":11,\"minute\":22,\"second\":33}").unwrap();
 		assert_eq!(fjson_til, til);
+		let te = "2019-11-10T07:00:17.866348700Z".parse::<DateTime<Utc>>().unwrap();
+		let bt = Basetask::from_details("WHITE ALBUM2".to_string(), 0, Progress::new(4, 13), te, 6068359080622533981);
+		let json_bt = to_string(&bt).unwrap();
+		assert_eq!(json_bt, "{\"name\":\"WHITE ALBUM2\",\"priority\":0,\"progress\":{\"finished\":4,\"total\":13},\"create_time\":\"2019-11-10T07:00:17.866348700Z\",\"tid\":6068359080622533981}");
+		let fjson_bt: Basetask = from_str("{\"name\":\"WHITE ALBUM2\",\"priority\":0,\"progress\":{\"finished\":4,\"total\":13},\"create_time\":\"2019-11-10T07:00:17.866348700Z\",\"tid\":6068359080622533981}").unwrap();
+		assert_eq!(fjson_bt, bt);
 	}
 }
