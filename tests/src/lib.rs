@@ -3,6 +3,7 @@ mod test {
 	use ngtools::*;
 	use basetask::*;
 	use chrono::prelude::*;
+	use serde_json::*;
 	#[test]
 	fn test_progress_finish() {
 		let mut prog = Progress::new(1, 3);
@@ -57,5 +58,18 @@ mod test {
 		let bt3 = Basetask::from_details("WHITE ALBUM2".to_string(), 0, Progress::new(4, 13), te, tid);
 		let bt4 = Basetask::from_details("WHITE ALBUM2".to_string(), 0, Progress::new(4, 13), te, tid);
 		assert_eq!(bt4, bt3);
+	}
+	#[test]
+	fn test_json() {
+		let pg = Progress::new(0, 52);
+		let json_pg = to_string(&pg).unwrap();
+		assert_eq!(json_pg, "{\"finished\":0,\"total\":52}");
+		let fjson_pg: Progress = from_str("{\"finished\":0,\"total\":52}").unwrap();
+		assert_eq!(fjson_pg, pg);
+		let til = TimeLen::new(11, 22, 33);
+		let json_til = to_string(&til).unwrap();
+		assert_eq!(json_til, "{\"hour\":11,\"minute\":22,\"second\":33}");
+		let fjson_til: TimeLen = from_str("{\"hour\":11,\"minute\":22,\"second\":33}").unwrap();
+		assert_eq!(fjson_til, til);
 	}
 }

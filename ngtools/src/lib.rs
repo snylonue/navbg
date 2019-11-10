@@ -2,16 +2,18 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::Hash;
 use std::hash::Hasher;
 use rand::Rng;
+use serde::Serialize;
+use serde::Deserialize;
 
 const LETTERS: [char; 62] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const LTLEN: usize = 62;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Progress {
     pub finished: u32,
     pub total: u32,
 }
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TimeLen {
     pub hour: i32,
     pub minute: i32,
@@ -23,23 +25,23 @@ impl Progress {
         Progress {finished, total}
     }
     pub fn finish(&mut self) {
-    	self.finished = self.total;
+        self.finished = self.total;
     }
     pub fn set_progress(&mut self, new_progress: u32) -> Result<(), &'static str> {
-    	if new_progress > self.total {
-    		Err("new progress is larger than total")
-    	} else {
-    		self.finished = new_progress;
-    		Ok(())
-    	}
+        if new_progress > self.total {
+            Err("new progress is larger than total")
+        } else {
+            self.finished = new_progress;
+            Ok(())
+        }
     }
     pub fn set_total(&mut self, new_total: u32) -> Result<(), &'static str> {
-    	if new_total < self.finished {
-    		Err("new total is smaller than finished")
-    	} else {
-    		self.total = new_total;
-    		Ok(())
-    	}
+        if new_total < self.finished {
+            Err("new total is smaller than finished")
+        } else {
+            self.total = new_total;
+            Ok(())
+        }
     }
 }
 impl TimeLen {
@@ -52,7 +54,7 @@ impl TimeLen {
         timl
     }
     pub fn seconds(&self) -> i32 {
-    	self.hour * 3600 + self.minute * 60 + self.second
+        self.hour * 3600 + self.minute * 60 + self.second
     }
     fn simple(&mut self) {
         if self.second.abs() >= 60 {
@@ -60,8 +62,8 @@ impl TimeLen {
             self.second %= 60;
         }
         if self.minute.abs() >= 60 {
-     	   self.hour += self.minute / 60;
-     	   self.minute %= 60;
+            self.hour += self.minute / 60;
+            self.minute %= 60;
         }
     }
 }
