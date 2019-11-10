@@ -78,4 +78,26 @@ mod test {
 		let fjson_bt: Basetask = from_str("{\"name\":\"WHITE ALBUM2\",\"priority\":0,\"progress\":{\"finished\":4,\"total\":13},\"create_time\":\"2019-11-10T07:00:17.866348700Z\",\"tid\":6068359080622533981}").unwrap();
 		assert_eq!(fjson_bt, bt);
 	}
+	#[test]
+	fn test_basetasks() {
+		let te = Utc::now();
+		let bt1 = Basetask::from_details("WHITE ALBUM2".to_string(), 0, Progress::new(4, 13), te, random_hash());
+		let bt2 = Basetask::from_details("涼宮ハルヒの憂鬱".to_string(), 0, Progress::new(2, 14), te, random_hash());
+		let bt3 = Basetask::from_details("BEASTARS".to_string(), 0, Progress::new(1, 12), te, random_hash());
+		let mut bts1 = Basetasks::new();
+		let in1 = bts1.insert(bt1.clone());
+		assert_eq!(in1, None);
+		let in2 = bts1.insert(bt1.clone());
+		assert_eq!(in2, Some(bt1.clone()));
+		bts1.insert(bt2.clone());
+		let bts2 = Basetasks::from_vec(vec![bt1.clone(),bt2.clone()]);
+		assert_eq!(bts2, bts1);
+		let bts3 = Basetasks::from_array(&[bt1.clone(),bt2.clone()]);
+		assert_eq!(bts3, bts2);
+		let mut bts4 = Basetasks::from_vec(vec![bt1.clone(),bt2.clone(),bt3.clone()]);
+		let out1 = bts4.pop(bt3.tid);
+		assert_eq!(out1, Some(bt3.clone()));
+		assert_eq!(bts2, bts4);
+		assert_eq!(bts4.len(), 2);
+	}
 }
