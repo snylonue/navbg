@@ -10,11 +10,12 @@ const LTLEN: usize = 62;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Progress {
-    pub finished: u32,
-    pub total: u32,
+    finished: u32,
+    total: u32,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TimeLen {
+    //Fields below is going to be private
     pub hour: i32,
     pub minute: i32,
     pub second: i32,
@@ -43,10 +44,23 @@ impl Progress {
             Ok(())
         }
     }
+    pub fn fin(&self) -> u32 {
+        self.finished
+    }
+    pub fn tal(&self) -> u32 {
+        self.total
+    }
+    pub fn status(&self) -> (u32, u32) {
+        (self.finished, self.total)
+    }
 }
 impl TimeLen {
+    //will be removed
     pub fn create() -> TimeLen {
         TimeLen {hour: 0, minute: 0, second: 0}
+    }
+    pub fn from_tuple(tpl: (i32, i32, i32)) -> TimeLen {
+        TimeLen::new(tpl.0, tpl.1, tpl.2)
     }
     pub fn new(hour: i32, minute: i32, second: i32) -> TimeLen {
         let mut timl = TimeLen {hour, minute, second};
