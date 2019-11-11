@@ -1,7 +1,8 @@
 use ngtools;
 use serde::Serialize;
 use serde::Deserialize;
-use chrono::prelude::*;
+use chrono;
+use chrono::Utc;
 use std::collections::HashMap;
 use std::collections::hash_map;
 
@@ -10,7 +11,7 @@ pub struct Basetask {
     pub name: String,
     pub priority: i32,
     pub progress: ngtools::Progress,
-    pub create_time: DateTime<Utc>,
+    pub create_time: chrono::DateTime<Utc>,
     pub tid: u64,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -29,15 +30,16 @@ pub trait Modify {
     fn pop(&mut self, tid: u64) -> Option<Self::Task>;
 }
 pub trait Read {
-    fn get(&self);
-    fn search(&self, tid: u64);
+    type Task;
+
+    fn get(&self, tid: u64) -> Option<Self::Task>;
 }
 
 impl Basetask {
     pub fn new(name: String, priority: i32, progress: ngtools::Progress) -> Basetask {
         Basetask {name, priority, progress, create_time: Utc::now(), tid: ngtools::random_hash()}
     }
-    pub fn from_details(name: String, priority: i32, progress: ngtools::Progress, create_time: DateTime<Utc>, tid: u64) -> Basetask {
+    pub fn from_details(name: String, priority: i32, progress: ngtools::Progress, create_time: chrono::DateTime<Utc>, tid: u64) -> Basetask {
         Basetask {name, priority, progress, create_time, tid}
     }
 }
@@ -83,10 +85,17 @@ impl Basetasks {
 impl Modify for Basetasks {
     type Task = Basetask;
 
-    fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
+    fn insert(&mut self, new_task: Self::Task) -> Option<Basetask> {
         self.task.insert(new_task.tid, new_task)
     }
-    fn pop(&mut self, tid: u64) -> Option<Self::Task> {
+    fn pop(&mut self, tid: u64) -> Option<Basetask> {
         self.task.remove(&tid)
+    }
+}
+impl Read for Basetasks {
+    type Task = Basetask;
+
+    fn get(&self, tid: u64) -> Option<Basetask> {
+        self.get(tid)
     }
 }
