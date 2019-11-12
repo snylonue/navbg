@@ -32,7 +32,7 @@ pub trait Modify {
 pub trait Read {
     type Task;
 
-    fn get(&self, tid: u64) -> Option<Self::Task>;
+    fn get(&self, tid: u64) -> Option<&Self::Task>;
 }
 
 impl Basetask {
@@ -95,7 +95,7 @@ impl Modify for Basetasks {
 impl Read for Basetasks {
     type Task = Basetask;
 
-    fn get(&self, tid: u64) -> Option<Basetask> {
-        self.get(tid)
+    fn get(&self, tid: u64) -> Option<&Basetask> {
+        self.task.get(&tid)
     }
 }
