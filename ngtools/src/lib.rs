@@ -6,7 +6,6 @@ use serde::Serialize;
 use serde::Deserialize;
 
 const LETTERS: [char; 62] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const LTLEN: usize = 62;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Progress {
@@ -15,10 +14,9 @@ pub struct Progress {
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TimeLen {
-    //Fields below is going to be private
-    pub hour: i32,
-    pub minute: i32,
-    pub second: i32,
+    hour: i32,
+    minute: i32,
+    second: i32,
 }
 
 impl Progress {
@@ -54,6 +52,11 @@ impl Progress {
         (self.finished, self.total)
     }
 }
+impl Default for Progress {
+    fn default() -> Progress {
+        Progress {finished: 0, total: 1}
+    }
+}
 impl TimeLen {
     //will be removed
     pub fn create() -> TimeLen {
@@ -67,8 +70,17 @@ impl TimeLen {
         timl.simple();
         timl
     }
-    pub fn seconds(&self) -> i32 {
+    pub fn total_seconds(&self) -> i32 {
         self.hour * 3600 + self.minute * 60 + self.second
+    }
+    pub fn hours(&self) -> i32 {
+        self.hour
+    }
+    pub fn minutes(&self) -> i32 {
+        self.minute
+    }
+    pub fn seconds(&self) -> i32 {
+        self.second
     }
     fn simple(&mut self) {
         if self.second.abs() >= 60 {
@@ -81,13 +93,18 @@ impl TimeLen {
         }
     }
 }
+impl Default for TimeLen {
+    fn default() -> TimeLen {
+        TimeLen {hour: 0, minute: 0, second: 0}
+    }
+}
 
 pub fn random_hash() -> u64 {
     let mut rng = rand::thread_rng();
     let mut res = String::new();
     let strlen = rng.gen_range(1, 64);
     for _i in 0..strlen {
-        let pos = rng.gen_range(0, LTLEN);
+        let pos = rng.gen_range(0, LETTERS.len());
         res.push(LETTERS[pos]);
     }
     let mut s = DefaultHasher::new();
