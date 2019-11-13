@@ -1,4 +1,5 @@
 use ngtools;
+use serde_json;
 use serde::Serialize;
 use serde::Deserialize;
 use chrono;
@@ -33,6 +34,11 @@ pub trait Read {
     type Task;
 
     fn get(&self, tid: u64) -> Option<&Self::Task>;
+    fn to_json(&self) -> Result<String, serde_json::error::Error>
+where Self:Serialize
+    {
+        serde_json::to_string(&self)
+    }
 }
 
 impl Basetask {
