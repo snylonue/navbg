@@ -16,9 +16,7 @@ pub struct Basetask {
     tid: u64,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Tasks<T> 
-    where T: Tid + Clone
-{
+pub struct Tasks<T> {
     task: HashMap<u64, T>,
 }
 
@@ -66,7 +64,7 @@ impl Tid for Basetask {
     }
 }
 impl<T> Tasks<T> 
-    where T: Tid + Clone
+    where T: Tid
 {
     //from_array() seems slow because of clone()
     //need to optimize
@@ -81,7 +79,9 @@ impl<T> Tasks<T>
         Tasks {task}
     }
     //may be removed
-    pub fn from_array(arrtasks: &[T]) -> Tasks<T> {
+    pub fn from_array(arrtasks: &[T]) -> Tasks<T>
+        where T: Clone
+    {
         let mut task = HashMap::new();
         for i in arrtasks.iter() {
             task.insert(i.tid(), i.clone());
