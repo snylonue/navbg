@@ -17,7 +17,7 @@ pub struct Basetask {
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Tasks<T> 
-where T: Tid + Clone
+    where T: Tid + Clone
 {
     task: HashMap<u64, T>,
 }
@@ -29,16 +29,18 @@ pub trait Tid {
 }
 pub trait Modify {
     type Task;
+    type Key;
 
     fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task>;
-    fn pop(&mut self, tid: u64) -> Option<Self::Task>;
+    fn pop(&mut self, tid: Self::Key) -> Option<Self::Task>;
 }
 pub trait Read {
     type Task;
+    type Key;
 
-    fn get(&self, tid: u64) -> Option<&Self::Task>;
+    fn get(&self, tid: Self::Key) -> Option<&Self::Task>;
     fn to_json(&self) -> Result<String, serde_json::error::Error>
-where Self:Serialize
+        where Self:Serialize
     {
         serde_json::to_string(&self)
     }
@@ -64,7 +66,7 @@ impl Tid for Basetask {
     }
 }
 impl<T> Tasks<T> 
-where T: Tid + Clone
+    where T: Tid + Clone
 {
     //from_array() seems slow because of clone()
     //need to optimize
@@ -97,23 +99,25 @@ where T: Tid + Clone
     }
 }
 impl<T> Modify for Tasks<T>
-where T: Tid + Clone
+    where T: Tid + Clone
 {
     type Task = T;
+    type Key = u64;
 
     fn insert(&mut self, new_task: Self::Task) -> Option<T> {
         self.task.insert(new_task.tid(), new_task)
     }
-    fn pop(&mut self, tid: u64) -> Option<T> {
+    fn pop(&mut self, tid: Self::Key) -> Option<T> {
         self.task.remove(&tid)
     }
 }
 impl<T> Read for Tasks<T>
-where T: Tid + Clone
+    where T: Tid + Clone
 {
     type Task = T;
+    type Key = u64;
 
-    fn get(&self, tid: u64) -> Option<&T> {
+    fn get(&self, tid: Self::Key) -> Option<&T> {
         self.task.get(&tid)
     }
 }
