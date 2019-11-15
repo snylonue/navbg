@@ -13,14 +13,17 @@ pub struct Basetask {
     pub priority: i32,
     pub progress: ngtools::Progress,
     pub create_time: chrono::DateTime<Utc>,
-    pub tid: u64,
+    tid: u64,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Basetasks {
-    task: HashMap<u64, Basetask>,
+pub struct Tasks<T> 
+where T: Tid + Clone
+{
+    task: HashMap<u64, T>,
 }
 
-pub trait ChangeTid {
+pub trait Tid {
+    fn tid(&self) -> u64;
     fn change_tid(&mut self);
     fn change_tid_v(&mut self, tid: u64);
 }
@@ -49,7 +52,10 @@ impl Basetask {
         Basetask {name, priority, progress, create_time, tid}
     }
 }
-impl ChangeTid for Basetask {
+impl Tid for Basetask {
+    fn tid(&self) -> u64 {
+        self.tid
+    }
     fn change_tid(&mut self) {
         self.tid = ngtools::random_hash();
     }
@@ -57,51 +63,57 @@ impl ChangeTid for Basetask {
         self.tid = tid;
     }
 }
-impl Basetasks {
+impl<T> Tasks<T> 
+where T: Tid + Clone
+{
     //from_array() seems slow because of clone()
     //need to optimize
-    pub fn new() -> Basetasks {
-        Basetasks {task: HashMap::new()}
+    pub fn new() -> Tasks<T> {
+        Tasks {task: HashMap::new()}
     }
-    pub fn from_vec(vectasks: Vec<Basetask>) -> Basetasks {
+    pub fn from_vec(vectasks: Vec<T>) -> Tasks<T> {
         let mut task = HashMap::new();
         for i in vectasks {
-            task.insert(i.tid, i);
+            task.insert(i.tid(), i);
         }
-        Basetasks {task}
+        Tasks {task}
     }
     //may be removed
-    pub fn from_array(arrtasks: &[Basetask]) -> Basetasks {
+    pub fn from_array(arrtasks: &[T]) -> Tasks<T> {
         let mut task = HashMap::new();
         for i in arrtasks.iter() {
-            task.insert(i.tid, i.clone());
+            task.insert(i.tid(), i.clone());
         }
-        Basetasks {task}
+        Tasks {task}
     }
-    pub fn tasks(&self) -> hash_map::Keys<u64, Basetask> {
+    pub fn tasks(&self) -> hash_map::Keys<u64, T> {
         self.task.keys()
     }
-    pub fn tids(&self) -> hash_map::Values<u64, Basetask> {
+    pub fn tids(&self) -> hash_map::Values<u64, T> {
         self.task.values()
     }
     pub fn len(&self) -> usize {
         self.task.len()
     }
 }
-impl Modify for Basetasks {
-    type Task = Basetask;
+impl<T> Modify for Tasks<T>
+where T: Tid + Clone
+{
+    type Task = T;
 
-    fn insert(&mut self, new_task: Self::Task) -> Option<Basetask> {
-        self.task.insert(new_task.tid, new_task)
+    fn insert(&mut self, new_task: Self::Task) -> Option<T> {
+        self.task.insert(new_task.tid(), new_task)
     }
-    fn pop(&mut self, tid: u64) -> Option<Basetask> {
+    fn pop(&mut self, tid: u64) -> Option<T> {
         self.task.remove(&tid)
     }
 }
-impl Read for Basetasks {
-    type Task = Basetask;
+impl<T> Read for Tasks<T>
+where T: Tid + Clone
+{
+    type Task = T;
 
-    fn get(&self, tid: u64) -> Option<&Basetask> {
+    fn get(&self, tid: u64) -> Option<&T> {
         self.task.get(&tid)
     }
 }

@@ -8,13 +8,13 @@ mod test {
 	fn test_progress_finish() {
 		let mut prog = Progress::new(1, 3);
 		prog.finish();
-		assert_eq!(prog, Progress {finished:3, total: 3});
+		assert_eq!(prog, Progress::new(3, 3));
 	}
 	#[test]
 	fn test_progress_set_progress() {
 		let mut prog = Progress::new(1, 3);
 		prog.set_progress(2).unwrap();
-		assert_eq!(prog, Progress {finished: 2, total: 3});
+		assert_eq!(prog, Progress::new(2, 3));
 	}
 	#[test]
 	#[should_panic]
@@ -26,21 +26,28 @@ mod test {
 	fn test_progress_set_total() {
 		let mut prog = Progress::new(1, 3);
 		prog.set_total(4).unwrap();
-		assert_eq!(prog, Progress {finished: 1, total:4});
+		assert_eq!(prog, Progress::new(1, 4));
+	}
+	#[test]
+	fn test_timelen() {
+		let timl = TimeLen::new(12, 13, 25);
+		assert_eq!(timl.seconds(), 25);
+		assert_eq!(timl.minutes(), 13);
+		assert_eq!(timl.hours(), 12);
 	}
 	#[test]
 	fn test_timelen_simple() {
 		let timl = TimeLen::new(16, 72, 93);
-		assert_eq!(timl, TimeLen {hour: 17, minute: 13, second: 33});
+		assert_eq!(timl, TimeLen::new(17, 13, 33));
 		let timlm = TimeLen::new(-2, -72, -93);
-		assert_eq!(timlm, TimeLen {hour: -3, minute: -13, second: -33});
+		assert_eq!(timlm, TimeLen::new(-3, -13, -33));
 	}
 	#[test]
-	fn test_timelen_seconds() {
+	fn test_timelen_total_seconds() {
 		let timl = TimeLen::new(23, 469, 69);
-		assert_eq!(timl.seconds(), 111009);
+		assert_eq!(timl.total_seconds(), 111009);
 		let timlm = TimeLen::new(-2, -69, -93);
-		assert_eq!(timlm.seconds(), -11433);
+		assert_eq!(timlm.total_seconds(), -11433);
 	}
 	#[test]
 	fn test_random_hash() {
@@ -79,23 +86,23 @@ mod test {
 		assert_eq!(fjson_bt, bt);
 	}
 	#[test]
-	fn test_basetasks() {
+	fn test_tasks() {
 		let te = Utc::now();
 		let bt1 = Basetask::from_details("WHITE ALBUM2".to_string(), 0, Progress::new(4, 13), te, random_hash());
 		let bt2 = Basetask::from_details("涼宮ハルヒの憂鬱".to_string(), 0, Progress::new(2, 14), te, random_hash());
 		let bt3 = Basetask::from_details("BEASTARS".to_string(), 0, Progress::new(1, 12), te, random_hash());
-		let mut bts1 = Basetasks::new();
+		let mut bts1 = Tasks::new();
 		let in1 = bts1.insert(bt1.clone());
 		assert_eq!(in1, None);
 		let in2 = bts1.insert(bt1.clone());
 		assert_eq!(in2, Some(bt1.clone()));
 		bts1.insert(bt2.clone());
-		let bts2 = Basetasks::from_vec(vec![bt1.clone(),bt2.clone()]);
+		let bts2 = Tasks::from_vec(vec![bt1.clone(),bt2.clone()]);
 		assert_eq!(bts2, bts1);
-		let bts3 = Basetasks::from_array(&[bt1.clone(),bt2.clone()]);
+		let bts3 = Tasks::from_array(&[bt1.clone(),bt2.clone()]);
 		assert_eq!(bts3, bts2);
-		let mut bts4 = Basetasks::from_vec(vec![bt1.clone(),bt2.clone(),bt3.clone()]);
-		let out1 = bts4.pop(bt3.tid);
+		let mut bts4 = Tasks::from_vec(vec![bt1.clone(),bt2.clone(),bt3.clone()]);
+		let out1 = bts4.pop(bt3.tid());
 		assert_eq!(out1, Some(bt3.clone()));
 		assert_eq!(bts2, bts4);
 		assert_eq!(bts4.len(), 2);
