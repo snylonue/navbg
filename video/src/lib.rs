@@ -45,6 +45,11 @@ impl Ep {
     	self.number = new_num;
     }
 }
+impl Default for Ep {
+	fn default() -> Ep {
+		Ep {number: "1".to_string(), name: "".to_string(), status: Status::Watching, ep_type: "positive".to_string()}
+	}
+}
 impl Eps {
 	pub fn new() -> Eps {
 		Eps {eps: HashMap::new()}

@@ -53,6 +53,7 @@ mod test {
 	fn test_random_hash() {
 		let s1 = random_hash();
 		let s2 = random_hash();
+		//The test may fail
 		assert_ne!(s1, s2);
 	}
 	#[test]

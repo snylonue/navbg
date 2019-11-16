@@ -72,21 +72,21 @@ impl<T> Tasks<T>
         Tasks {task: HashMap::new()}
     }
     pub fn from_vec(vectasks: Vec<T>) -> Tasks<T> {
-        let mut task = HashMap::new();
+        let mut task = Tasks::new();
         for i in vectasks {
-            task.insert(i.tid(), i);
+            task.insert(i);
         }
-        Tasks {task}
+        task
     }
     //may be removed
     pub fn from_array(arrtasks: &[T]) -> Tasks<T>
         where T: Clone
     {
-        let mut task = HashMap::new();
+        let mut task = Tasks::new();
         for i in arrtasks.iter() {
-            task.insert(i.tid(), i.clone());
+            task.insert(i.clone());
         }
-        Tasks {task}
+        task
     }
     pub fn tasks(&self) -> hash_map::Keys<u64, T> {
         self.task.keys()
@@ -99,7 +99,7 @@ impl<T> Tasks<T>
     }
 }
 impl<T> Modify for Tasks<T>
-    where T: Tid + Clone
+    where T: Tid
 {
     type Task = T;
     type Key = u64;
@@ -112,7 +112,7 @@ impl<T> Modify for Tasks<T>
     }
 }
 impl<T> Read for Tasks<T>
-    where T: Tid + Clone
+    where T: Tid
 {
     type Task = T;
     type Key = u64;
