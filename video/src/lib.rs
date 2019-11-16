@@ -1,9 +1,10 @@
-use ngtools;
-use basetask;
 use chrono::Utc;
 use serde::Serialize;
 use serde::Deserialize;
 use std::collections::HashMap;
+
+use ngtools;
+use basetask;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum Status {
@@ -31,36 +32,63 @@ pub struct Video {
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Eps {
-    eps: HashMap<String, Ep>,
+    eps: HashMap<String, HashMap<String, Ep>>,
+    //types: Vec<String>,
 }
 
 impl Ep {
-    pub fn new(number: String, name: String, status: Status, ep_type: String) -> Ep {
-        Ep {number, name, status, ep_type}
+    pub fn new<S>(number: S, name: S, status: Status, ep_type: S) -> Ep
+    where S: Into<String>
+    {
+        Ep { number:number.into(), name:name.into(), status, ep_type:ep_type.into() }
     }
-    pub fn get_number(&self) -> &String {
-    	&self.number
+    pub fn number(&self) -> &String {
+        &self.number
     }
-    pub fn set_number(&mut self, new_num: String) {
-    	self.number = new_num;
+    pub fn set_number<S>(&mut self, new_num: S) 
+    where S: Into<String>
+    {
+        self.number = new_num.into();
     }
 }
 impl Default for Ep {
-	fn default() -> Ep {
-		Ep {number: "1".to_string(), name: "".to_string(), status: Status::Watching, ep_type: "positive".to_string()}
-	}
+    fn default() -> Ep {
+        Ep::new("1", "", Status::Watching, "ep")
+    }
 }
 impl Eps {
-	pub fn new() -> Eps {
-		Eps {eps: HashMap::new()}
-	}
-	pub fn from_vec(veceps: Vec<Ep>) -> Eps {
+    pub fn new() -> Eps {
+        Eps { eps: HashMap::new() }
+    }
+    pub fn from_vec(veceps: Vec<Ep>) -> Eps {
         let mut eps = HashMap::new();
-        for i in veceps {
-            eps.insert(i.get_number().clone(), i);
+        //{ type: Hashmap }
+        for i in veceps.iter() {
+            eps.insert(i.ep_type.clone(), HashMap::new());
+            //types.push(i.ep_type);
         }
-        Eps {eps}
-	}
+        //{ type: Hashmap: {number: Ep} }
+        for i in veceps {
+            let epty = eps.get_mut(&i.ep_type).unwrap();
+            epty.insert(i.number().clone(), i);
+        }
+        Eps { eps }
+    }
+}
+impl basetask::Modify for Eps {
+    type Task = Ep;
+    type Key = String;
+
+    fn insert(&mut self, new_task: Ep) -> Option<Ep> {
+        let new_hm: HashMap<String, Ep> = HashMap::new();
+        self.eps.entry(new_task.ep_type.clone()).or_insert(new_hm);
+        let epty = self.eps.get_mut(&new_task.ep_type).unwrap();
+        epty.insert(new_task.number().clone(), new_task)
+    }
+    fn pop(&mut self, key: &String) -> Option<Ep> {
+        //unfinished
+        Some(Ep::default())
+    }
 }
 impl basetask::Tid for Video {
     fn tid(&self) -> u64 {

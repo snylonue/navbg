@@ -9,5 +9,6 @@ edition = "2018"
 [dependencies]
 ngtools = { path = "../ngtools"}
 basetask = { path = "../basetask" }
+video = { path = "../video" }
 chrono = "0.4"
 serde_json = "1.0"
