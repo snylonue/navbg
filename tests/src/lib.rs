@@ -31,9 +31,9 @@ mod test {
     #[test]
     fn test_timelen() {
         let timl = TimeLen::new(12, 13, 25);
-        assert_eq!(timl.seconds(), 25);
-        assert_eq!(timl.minutes(), 13);
-        assert_eq!(timl.hours(), 12);
+        assert_eq!(timl.second(), 25);
+        assert_eq!(timl.minute(), 13);
+        assert_eq!(timl.hour(), 12);
     }
     #[test]
     fn test_timelen_simple() {

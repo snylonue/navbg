@@ -1,4 +1,3 @@
-use ngtools;
 use serde_json;
 use serde::Serialize;
 use serde::Deserialize;
@@ -6,6 +5,8 @@ use chrono;
 use chrono::Utc;
 use std::collections::HashMap;
 use std::collections::hash_map;
+
+use ngtools;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Basetask {
@@ -46,10 +47,10 @@ pub trait Read {
 
 impl Basetask {
     pub fn new(name: String, priority: i32, progress: ngtools::Progress) -> Basetask {
-        Basetask {name, priority, progress, create_time: Utc::now(), tid: ngtools::random_hash()}
+        Basetask { name, priority, progress, create_time: Utc::now(), tid: ngtools::random_hash() }
     }
     pub fn from_details(name: String, priority: i32, progress: ngtools::Progress, create_time: chrono::DateTime<Utc>, tid: u64) -> Basetask {
-        Basetask {name, priority, progress, create_time, tid}
+        Basetask { name, priority, progress, create_time, tid }
     }
 }
 impl Tid for Basetask {
@@ -69,7 +70,7 @@ impl<T> Tasks<T>
     //from_array() seems slow because of clone()
     //need to optimize
     pub fn new() -> Tasks<T> {
-        Tasks {task: HashMap::new()}
+        Tasks { task: HashMap::new() }
     }
     pub fn from_vec(vectasks: Vec<T>) -> Tasks<T> {
         let mut task = Tasks::new();

@@ -21,7 +21,7 @@ pub struct TimeLen {
 
 impl Progress {
     pub fn new(finished: u32,total: u32) -> Progress {
-        Progress {finished, total}
+        Progress { finished, total}
     }
     pub fn finish(&mut self) {
         self.finished = self.total;
@@ -42,10 +42,10 @@ impl Progress {
             Ok(())
         }
     }
-    pub fn fin(&self) -> u32 {
+    pub fn finished(&self) -> u32 {
         self.finished
     }
-    pub fn tal(&self) -> u32 {
+    pub fn total(&self) -> u32 {
         self.total
     }
     pub fn status(&self) -> (u32, u32) {
@@ -54,32 +54,32 @@ impl Progress {
 }
 impl Default for Progress {
     fn default() -> Progress {
-        Progress {finished: 0, total: 1}
+        Progress { finished: 0, total: 1 }
     }
 }
 impl TimeLen {
     //will be removed
     pub fn create() -> TimeLen {
-        TimeLen {hour: 0, minute: 0, second: 0}
+        TimeLen { hour: 0, minute: 0, second: 0 }
     }
     pub fn from_tuple(tpl: (i32, i32, i32)) -> TimeLen {
         TimeLen::new(tpl.0, tpl.1, tpl.2)
     }
     pub fn new(hour: i32, minute: i32, second: i32) -> TimeLen {
-        let mut timl = TimeLen {hour, minute, second};
+        let mut timl = TimeLen { hour, minute, second };
         timl.simple();
         timl
     }
     pub fn total_seconds(&self) -> i32 {
         self.hour * 3600 + self.minute * 60 + self.second
     }
-    pub fn hours(&self) -> i32 {
+    pub fn hour(&self) -> i32 {
         self.hour
     }
-    pub fn minutes(&self) -> i32 {
+    pub fn minute(&self) -> i32 {
         self.minute
     }
-    pub fn seconds(&self) -> i32 {
+    pub fn second(&self) -> i32 {
         self.second
     }
     fn simple(&mut self) {
@@ -95,7 +95,7 @@ impl TimeLen {
 }
 impl Default for TimeLen {
     fn default() -> TimeLen {
-        TimeLen {hour: 0, minute: 0, second: 0}
+        TimeLen { hour: 0, minute: 0, second: 0 }
     }
 }
 
