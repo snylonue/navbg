@@ -30,7 +30,7 @@ pub trait Modify {
     type Key;
 
     fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task>;
-    fn pop(&mut self, tid: Self::Key) -> Option<Self::Task>;
+    fn pop(&mut self, key: &Self::Key) -> Option<Self::Task>;
 }
 pub trait Read {
     type Task;
@@ -107,8 +107,8 @@ impl<T> Modify for Tasks<T>
     fn insert(&mut self, new_task: Self::Task) -> Option<T> {
         self.task.insert(new_task.tid(), new_task)
     }
-    fn pop(&mut self, tid: Self::Key) -> Option<T> {
-        self.task.remove(&tid)
+    fn pop(&mut self, key: &u64) -> Option<T> {
+        self.task.remove(key)
     }
 }
 impl<T> Read for Tasks<T>
