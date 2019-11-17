@@ -1,3 +1,4 @@
+use chrono;
 use chrono::Utc;
 use serde::Serialize;
 use serde::Deserialize;
@@ -28,18 +29,19 @@ pub struct Episode {
     pub status: Status,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Episodes {
+    eps: HashMap<EpInfo, Episode>,
+}
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Video {
     pub name: String,
     pub eps: Episodes,
     pub priority: i32,
     pub progress: ngtools::Progress,
     pub create_time: chrono::DateTime<Utc>,
-    pub tid: u64,
+    tid: u64,
 }
-#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-pub struct Episodes {
-    eps: HashMap<EpInfo, Episode>,
-}
+
 
 impl EpInfo {
     pub fn new<S>(number:S, ep_type:S) -> EpInfo
@@ -99,6 +101,9 @@ impl Episodes {
     pub fn types(&self) -> hash_map::Keys<EpInfo, Episode> {
         self.eps.keys()
     }
+    pub fn len(&self) -> usize {
+        self.eps.len()
+    }
 }
 impl Modify for Episodes {
     type Task = Episode;
@@ -109,6 +114,20 @@ impl Modify for Episodes {
     }
     fn pop(&mut self, key: &EpInfo) -> Option<Episode> {
         self.eps.remove(key)
+    }
+}
+impl Video {
+    fn new<S>(name: S, eps: Episodes) -> Video
+        where S: Into<String>
+    {
+        let progress = ngtools::Progress::new(0, eps.len() as u32);
+        Video { name: name.into(), eps, priority: 0, progress, create_time: Utc::now(), tid: ngtools::random_hash() }
+    }
+    fn from_details<S>(name: S, eps: Episodes, priority: i32, create_time: chrono::DateTime<Utc>, tid: u64) -> Video
+        where S: Into<String>
+    {
+        let progress = ngtools::Progress::new(0, eps.len() as u32);
+        Video { name: name.into(), eps, priority, progress, create_time, tid }
     }
 }
 impl basetask::Tid for Video {

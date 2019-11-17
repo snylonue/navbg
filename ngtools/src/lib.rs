@@ -21,7 +21,7 @@ pub struct TimeLen {
 
 impl Progress {
     pub fn new(finished: u32,total: u32) -> Progress {
-        Progress { finished, total}
+        Progress { finished, total }
     }
     pub fn finish(&mut self) {
         self.finished = self.total;

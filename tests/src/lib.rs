@@ -140,5 +140,6 @@ mod test {
                 _ => panic!()
             };
         }
+        assert_eq!(eps2.len(), 3);
     }
 }
