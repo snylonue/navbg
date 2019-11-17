@@ -8,6 +8,7 @@ use std::collections::hash_map;
 use ngtools;
 use basetask;
 use basetask::Modify;
+use basetask::Read;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum Status {
@@ -36,12 +37,11 @@ pub struct Episodes {
 pub struct Video {
     pub name: String,
     pub eps: Episodes,
-    pub priority: i32,
+    pub status: Status,
     pub progress: ngtools::Progress,
     pub create_time: chrono::DateTime<Utc>,
     tid: u64,
 }
-
 
 impl EpInfo {
     pub fn new<S>(number:S, ep_type:S) -> EpInfo
@@ -126,17 +126,17 @@ impl Read for Episodes {
 }
 impl Video {
     //field progress is autoly built
-    fn new<S>(name: S, eps: Episodes) -> Video
+    pub fn new<S>(name: S, eps: Episodes) -> Video
         where S: Into<String>
     {
         let progress = ngtools::Progress::new(0, eps.len() as u32);
-        Video { name: name.into(), eps, priority: 0, progress, create_time: Utc::now(), tid: ngtools::random_hash() }
+        Video { name: name.into(), eps, status: Status::Watching, progress, create_time: Utc::now(), tid: ngtools::random_hash() }
     }
-    fn from_details<S>(name: S, eps: Episodes, priority: i32, create_time: chrono::DateTime<Utc>, tid: u64) -> Video
+    pub fn from_details<S>(name: S, eps: Episodes, status: Status, create_time: chrono::DateTime<Utc>, tid: u64) -> Video
         where S: Into<String>
     {
         let progress = ngtools::Progress::new(0, eps.len() as u32);
-        Video { name: name.into(), eps, priority, progress, create_time, tid }
+        Video { name: name.into(), eps, status, progress, create_time, tid }
     }
 }
 impl basetask::Tid for Video {

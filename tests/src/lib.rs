@@ -88,11 +88,37 @@ mod test {
         assert_eq!(fjson_bt, bt);
     }
     #[test]
-    fn test_tasks() {
+    fn test_tasks_basetask() {
         let te = Utc::now();
         let bt1 = Basetask::from_details("WHITE ALBUM2", 0, Progress::new(4, 13), te, random_hash());
         let bt2 = Basetask::from_details("涼宮ハルヒの憂鬱", 0, Progress::new(2, 14), te, random_hash());
         let bt3 = Basetask::from_details("BEASTARS", 0, Progress::new(1, 12), te, random_hash());
+        let mut bts1 = Tasks::new();
+        let in1 = bts1.insert(bt1.clone());
+        assert_eq!(in1, None);
+        let in2 = bts1.insert(bt1.clone());
+        assert_eq!(in2, Some(bt1.clone()));
+        bts1.insert(bt2.clone());
+        let bts2 = Tasks::from_vec(vec![bt1.clone(),bt2.clone()]);
+        assert_eq!(bts2, bts1);
+        let bts3 = Tasks::from_array(&[bt1.clone(),bt2.clone()]);
+        assert_eq!(bts3, bts2);
+        let mut bts4 = Tasks::from_vec(vec![bt1.clone(),bt2.clone(),bt3.clone()]);
+        let out1 = bts4.pop(&bt3.tid());
+        assert_eq!(out1, Some(bt3.clone()));
+        assert_eq!(bts2, bts4);
+        assert_eq!(bts4.len(), 2);
+    }
+    #[test]
+    fn test_tasks_video() {
+        type Ep = Episode;
+        let te = Utc::now();
+        let bt1 = Video::from_details("WHITE ALBUM2", Episodes::from_vec(
+                                      vec![Ep::new(EpInfo::new("1", "ep"), "WHITE ALBUM", Status::Watching), Ep::new(EpInfo::new("2", "ep"), "隣り合わせのピアノとギター".to_string(), Status::Watching)]), Status::Watching, te, random_hash());
+        let bt2 = Video::from_details("涼宮ハルヒの憂鬱", Episodes::from_vec(
+                                      vec![Ep::new(EpInfo::new("1", "ep"), "満月は照らす獣を選んでる".to_string(), Status::Watching), Ep::new(EpInfo::new("2", "ep"), "学園の心臓部は庭園にあり".to_string(), Status::Watching)]), Status::Watching, te, random_hash());
+        let bt3 = Video::from_details("BEASTARS", Episodes::from_vec(
+                                      vec![Ep::new(EpInfo::new("1", "ep"), "朝比奈ミクルの冒険".to_string(), Status::Watching), Ep::new(EpInfo::new("2", "ep"), "涼宮ハルヒの憂鬱 I".to_string(), Status::Watching)]), Status::Watching, te, random_hash());
         let mut bts1 = Tasks::new();
         let in1 = bts1.insert(bt1.clone());
         assert_eq!(in1, None);

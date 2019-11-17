@@ -37,7 +37,7 @@ pub trait Read {
     type Task;
     type Key;
 
-    fn get(&self, tid: Self::Key) -> Option<&Self::Task>;
+    fn get(&self, key: &Self::Key) -> Option<&Self::Task>;
     fn to_json(&self) -> Result<String, serde_json::error::Error>
         where Self:Serialize
     {
@@ -122,7 +122,7 @@ impl<T> Read for Tasks<T>
     type Task = T;
     type Key = u64;
 
-    fn get(&self, tid: Self::Key) -> Option<&T> {
-        self.task.get(&tid)
+    fn get(&self, key: &u64) -> Option<&T> {
+        self.task.get(key)
     }
 }
