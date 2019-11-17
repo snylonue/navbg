@@ -109,10 +109,10 @@ impl Modify for Episodes {
     type Task = Episode;
     type Key = EpInfo;
 
-    fn insert(&mut self, new_task: Episode) -> Option<Episode> {
+    fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
         self.eps.insert(new_task.chap().clone(), new_task)
     }
-    fn pop(&mut self, key: &EpInfo) -> Option<Episode> {
+    fn pop(&mut self, key: &Self::Key) -> Option<Self::Task> {
         self.eps.remove(key)
     }
 }
@@ -120,7 +120,7 @@ impl Read for Episodes {
     type Task = Episode;
     type Key = EpInfo;
 
-    fn get(&self, key: &EpInfo) -> Option<&Episode> {
+    fn get(&self, key: &Self::Key) -> Option<&Self::Task> {
         self.eps.get(key)
     }
 }

@@ -109,10 +109,10 @@ impl<T> Modify for Tasks<T>
     type Task = T;
     type Key = u64;
 
-    fn insert(&mut self, new_task: Self::Task) -> Option<T> {
+    fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
         self.task.insert(new_task.tid(), new_task)
     }
-    fn pop(&mut self, key: &u64) -> Option<T> {
+    fn pop(&mut self, key: &Self::Key) -> Option<Self::Task> {
         self.task.remove(key)
     }
 }
@@ -122,7 +122,8 @@ impl<T> Read for Tasks<T>
     type Task = T;
     type Key = u64;
 
-    fn get(&self, key: &u64) -> Option<&T> {
+    fn get(&self, key: &Self::Key) -> Option<&Self::Task> {
         self.task.get(key)
     }
 }
+//impl<T> Iterator for Tasks<T> {}
