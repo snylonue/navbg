@@ -2,9 +2,11 @@ use chrono::Utc;
 use serde::Serialize;
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::collections::hash_map;
 
 use ngtools;
 use basetask;
+use basetask::Modify;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum Status {
@@ -14,80 +16,99 @@ pub enum Status {
     Hold,
     Dropped,
 }
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Hash, Clone)]
+pub struct EpInfo {
+    pub number: String,
+    pub ep_type: String,
+}
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-pub struct Ep {
-    number: String,
+pub struct Episode {
+    chap: EpInfo,
     pub name: String,
     pub status: Status,
-    pub ep_type: String,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Video {
     pub name: String,
-    pub eps: Eps,
+    pub eps: Episodes,
     pub priority: i32,
     pub progress: ngtools::Progress,
     pub create_time: chrono::DateTime<Utc>,
     pub tid: u64,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-pub struct Eps {
-    eps: HashMap<String, HashMap<String, Ep>>,
-    //types: Vec<String>,
+pub struct Episodes {
+    eps: HashMap<EpInfo, Episode>,
 }
 
-impl Ep {
-    pub fn new<S>(number: S, name: S, status: Status, ep_type: S) -> Ep
-    where S: Into<String>
+impl EpInfo {
+    pub fn new<S>(number:S, ep_type:S) -> EpInfo
+        where S: Into<String>
     {
-        Ep { number:number.into(), name:name.into(), status, ep_type:ep_type.into() }
+        EpInfo { number: number.into(), ep_type: ep_type.into() }
+    }
+}
+impl Episode {
+    pub fn new<S>(chap: EpInfo, name: S, status: Status) -> Episode
+        where S: Into<String>
+    {
+        Episode { chap, name:name.into(), status }
     }
     pub fn number(&self) -> &String {
-        &self.number
+        &self.chap.number
     }
     pub fn set_number<S>(&mut self, new_num: S) 
-    where S: Into<String>
+        where S: Into<String>
     {
-        self.number = new_num.into();
+        self.chap.number = new_num.into();
     }
-}
-impl Default for Ep {
-    fn default() -> Ep {
-        Ep::new("1", "", Status::Watching, "ep")
+    pub fn ep_type(&self) -> &String {
+        &self.chap.ep_type
     }
-}
-impl Eps {
-    pub fn new() -> Eps {
-        Eps { eps: HashMap::new() }
+    pub fn set_ep_type<S>(&mut self, new_ep_type: S) 
+        where S: Into<String>
+    {
+        self.chap.ep_type = new_ep_type.into();
     }
-    pub fn from_vec(veceps: Vec<Ep>) -> Eps {
-        let mut eps = HashMap::new();
-        //{ type: Hashmap }
-        for i in veceps.iter() {
-            eps.insert(i.ep_type.clone(), HashMap::new());
-            //types.push(i.ep_type);
-        }
-        //{ type: Hashmap: {number: Ep} }
-        for i in veceps {
-            let epty = eps.get_mut(&i.ep_type).unwrap();
-            epty.insert(i.number().clone(), i);
-        }
-        Eps { eps }
+    pub fn chap(&self) -> &EpInfo {
+        &self.chap
     }
-}
-impl basetask::Modify for Eps {
-    type Task = Ep;
-    type Key = String;
 
-    fn insert(&mut self, new_task: Ep) -> Option<Ep> {
-        let new_hm: HashMap<String, Ep> = HashMap::new();
-        self.eps.entry(new_task.ep_type.clone()).or_insert(new_hm);
-        let epty = self.eps.get_mut(&new_task.ep_type).unwrap();
-        epty.insert(new_task.number().clone(), new_task)
+}
+impl Default for EpInfo {
+    fn default() -> EpInfo {
+        EpInfo::new("1", "ep")
     }
-    fn pop(&mut self, key: &String) -> Option<Ep> {
-        //unfinished
-        Some(Ep::default())
+}
+impl Default for Episode {
+    fn default() -> Episode {
+        Episode::new(EpInfo::default(), "", Status::Watching)
+    }
+}
+impl Episodes {
+    pub fn new() -> Episodes {
+        Episodes { eps: HashMap::new() }
+    }
+    pub fn from_vec(veceps: Vec<Episode>) -> Episodes {
+        let mut eps = Episodes::new();
+        for i in veceps {
+            eps.insert(i);
+        }
+        eps
+    }
+    pub fn types(&self) -> hash_map::Keys<EpInfo, Episode> {
+        self.eps.keys()
+    }
+}
+impl Modify for Episodes {
+    type Task = Episode;
+    type Key = EpInfo;
+
+    fn insert(&mut self, new_task: Episode) -> Option<Episode> {
+        self.eps.insert(new_task.chap().clone(), new_task)
+    }
+    fn pop(&mut self, key: &EpInfo) -> Option<Episode> {
+        self.eps.remove(key)
     }
 }
 impl basetask::Tid for Video {
