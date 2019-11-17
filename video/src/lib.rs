@@ -116,7 +116,16 @@ impl Modify for Episodes {
         self.eps.remove(key)
     }
 }
+impl Read for Episodes {
+    type Task = Episode;
+    type Key = EpInfo;
+
+    fn get(&self, key: &EpInfo) -> Option<&Episode> {
+        self.eps.get(key)
+    }
+}
 impl Video {
+    //field progress is autoly built
     fn new<S>(name: S, eps: Episodes) -> Video
         where S: Into<String>
     {
