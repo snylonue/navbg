@@ -111,27 +111,34 @@ mod test {
     }
     #[test]
     fn test_ep() {
-        let mut ep = Ep::new("2", "あるぴんはいます！", Status::Watched, "ep");
+        let mut ep = Episode::new(EpInfo::new("1", "ep"), "あるぴんはいます！", Status::Watched);
         ep.set_number("1");
         assert_eq!(*ep.number(), "1");
     }
     #[test]
     fn test_eps() {
-        let ep1 = Ep::new("1", "伝統ある古典部の再生", Status::Watched, "ep");
-        let ep2 = Ep::new("2", "名誉ある古典部の活動", Status::Watched, "ep");
-        let ep3 = Ep::new("3", "事情ある古典部の末裔", Status::Watched, "ep");
-        let mut eps1 = Eps::new();
+        let ep1 = Episode::new(EpInfo::new("1", "ep"), "伝統ある古典部の再生", Status::Watched);
+        let ep2 = Episode::new(EpInfo::new("2", "ep"), "名誉ある古典部の活動", Status::Watched);
+        let ep3 = Episode::new(EpInfo::new("3", "ep"), "事情ある古典部の末裔", Status::Watched);
+        let mut eps1 = Episodes::new();
         let in1 = eps1.insert(ep1.clone());
         assert_eq!(in1, None);
         let in2 = eps1.insert(ep1.clone());
         assert_eq!(in2, Some(ep1.clone()));
         eps1.insert(ep2.clone());
         eps1.insert(ep3.clone());
-        let eps2 = Eps::from_vec(vec![ep1.clone(), ep2.clone(), ep3.clone()]);
+        let eps2 = Episodes::from_vec(vec![ep1.clone(), ep2.clone(), ep3.clone()]);
         assert_eq!(eps2, eps1);
-        let out1 = eps1.pop(&"1".to_string());
+        let out1 = eps1.pop(&EpInfo::new("1", "ep"));
         assert_eq!(out1, Some(ep1.clone()));
-        let out2 = eps1.pop(&"4".to_string());
+        let out2 = eps1.pop(&EpInfo::new("4", "ep"));
         assert_eq!(out2, None);
+        let keys = eps1.types();
+        for i in keys {
+            match i.number.as_str() {
+                "1" | "2" | "3" => 0,
+                _ => panic!()
+            };
+        }
     }
 }
