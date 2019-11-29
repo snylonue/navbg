@@ -11,6 +11,12 @@ use basetask::Tid;
 use basetask::Modify;
 use basetask::Read;
 
+macro_rules! into_str {
+    ($($s: ident),*) => {
+        $(let $s = $s.into();)*
+    };
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum Status {
     Wish,
@@ -21,11 +27,11 @@ pub enum Status {
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Episode {
-    number: u64,
     pub chap: String,
     pub name: String,
     pub status: Status,
     pub ep_type: String,
+    number: u64,
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Episodes {
@@ -45,7 +51,8 @@ impl Episode {
     pub fn new<S>(chap:S, name: S, status: Status, ep_type: S) -> Episode
         where S: Into<String>
     {
-        Episode { number: ngtools::random_hash(), chap: chap.into(), name: name.into(), status, ep_type: ep_type.into() }
+        into_str!(chap, name, ep_type);
+        Episode {chap, name, status, ep_type, number:ngtools::random_hash()}
     }
     pub fn number(&self) -> u64 {
         self.number
