@@ -23,7 +23,9 @@ pub struct Tasks<T> {
 
 pub trait Tid {
     fn tid(&self) -> u64;
-    fn change_tid(&mut self);
+    fn change_tid(&mut self) {
+        self.change_tid_v(ngtools::random_hash());
+    }
     fn change_tid_v(&mut self, tid: u64);
 }
 pub trait Modify {
