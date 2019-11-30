@@ -4,5 +4,4 @@ members = [
 	"ngtools",
 	"basetask",
 	"video",
-	"tests",
 ]
