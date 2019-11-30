@@ -11,7 +11,7 @@ use basetask::Tid;
 use basetask::Modify;
 use basetask::Read;
 
-macro_rules! into_str {
+macro_rules! into {
     ($($s: ident),*) => {
         $(let $s = $s.into();)*
     };
@@ -51,7 +51,7 @@ impl Episode {
     pub fn new<S>(chap:S, name: S, status: Status, ep_type: S) -> Episode
         where S: Into<String>
     {
-        into_str!(chap, name, ep_type);
+        into!(chap, name, ep_type);
         Episode {chap, name, status, ep_type, number:ngtools::random_hash()}
     }
     pub fn number(&self) -> u64 {
@@ -62,6 +62,7 @@ impl Episode {
         self.change_tid_v(new_num);
     }
 }
+impl ngtools::Json for Episode {}
 impl Default for Episode {
     fn default() -> Episode {
         Episode::new("1", "", Status::Watching, "ep")
@@ -96,6 +97,7 @@ impl Episodes {
         self.eps.len()
     }
 }
+impl ngtools::Json for Episodes {}
 impl Modify for Episodes {
     type Task = Episode;
     type Key = u64;
@@ -130,6 +132,7 @@ impl Video {
         Video { name: name.into(), eps, status, progress, create_time, tid }
     }
 }
+impl ngtools::Json for Video {}
 impl Tid for Video {
     fn tid(&self) -> u64 {
         self.tid

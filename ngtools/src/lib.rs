@@ -21,6 +21,14 @@ pub struct TimeLen {
     second: i32,
 }
 
+pub trait Json {
+    fn to_json(&self) -> Result<String, serde_json::error::Error>
+        where Self:Serialize
+    {
+        serde_json::to_string(&self)
+    }
+}
+
 impl Progress {
     pub fn new(finished: u32,total: u32) -> Progress {
         Progress { finished, total }
@@ -54,6 +62,7 @@ impl Progress {
         (self.finished, self.total)
     }
 }
+impl Json for Progress {}
 impl Default for Progress {
     fn default() -> Progress {
         Progress { finished: 0, total: 1 }
@@ -95,6 +104,7 @@ impl TimeLen {
         }
     }
 }
+impl Json for TimeLen {}
 impl Default for TimeLen {
     fn default() -> TimeLen {
         TimeLen { hour: 0, minute: 0, second: 0 }

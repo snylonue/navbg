@@ -40,11 +40,6 @@ pub trait Read {
     type Key;
 
     fn get(&self, key: &Self::Key) -> Option<&Self::Task>;
-    fn to_json(&self) -> Result<String, serde_json::error::Error>
-        where Self:Serialize
-    {
-        serde_json::to_string(&self)
-    }
 }
 
 impl Basetask {
@@ -70,6 +65,7 @@ impl Tid for Basetask {
         self.tid = tid;
     }
 }
+impl ngtools::Json for Basetask {}
 impl<T> Tasks<T> 
     where T: Tid
 {
@@ -105,6 +101,7 @@ impl<T> Tasks<T>
         self.task.len()
     }
 }
+impl<T> ngtools::Json for Tasks<T> {}
 impl<T> Modify for Tasks<T>
     where T: Tid
 {
