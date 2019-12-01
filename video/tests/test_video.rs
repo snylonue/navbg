@@ -32,7 +32,7 @@ mod tests {
         let keys = eps1.types();
         for i in keys {
             match i {
-                1 ... 3 => 0,
+                1 ... 3 => (),
                 _ => panic!()
             };
         }

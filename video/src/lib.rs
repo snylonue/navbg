@@ -20,6 +20,7 @@ macro_rules! into {
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub enum Status {
     Wish,
+    Unwatched,
     Watching,
     Watched,
     Hold,
@@ -65,7 +66,7 @@ impl Episode {
 impl ngtools::Json for Episode {}
 impl Default for Episode {
     fn default() -> Episode {
-        Episode::new("1", "", Status::Watching, "ep")
+        Episode::new("1", "", Status::Unwatched, "ep")
     }
 }
 impl Tid for Episode {
@@ -87,6 +88,13 @@ impl Episodes {
         let mut eps = Episodes::new();
         for i in veceps {
             eps.insert(i);
+        }
+        eps
+    }
+    pub fn pre_init(length: u32) -> Episodes {
+        let mut eps = Episodes::new();
+        for i in 1 ..= length {
+            eps.insert(Episode::new(i.to_string(), "".to_string(), Status::Unwatched, "ep".to_string()));
         }
         eps
     }

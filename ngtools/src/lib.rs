@@ -30,7 +30,7 @@ pub trait Json {
 }
 
 impl Progress {
-    pub fn new(finished: u32,total: u32) -> Progress {
+    pub const fn new(finished: u32,total: u32) -> Progress {
         Progress { finished, total }
     }
     pub fn finish(&mut self) {
@@ -61,6 +61,9 @@ impl Progress {
     pub fn status(&self) -> (u32, u32) {
         (self.finished, self.total)
     }
+    pub const fn is_finished(&self) -> bool {
+        self.finished == self.total
+    }
 }
 impl Json for Progress {}
 impl Default for Progress {
@@ -69,28 +72,24 @@ impl Default for Progress {
     }
 }
 impl TimeLen {
-    //will be removed
-    pub fn create() -> TimeLen {
-        TimeLen { hour: 0, minute: 0, second: 0 }
-    }
-    pub fn from_tuple(tpl: (i32, i32, i32)) -> TimeLen {
-        TimeLen::new(tpl.0, tpl.1, tpl.2)
-    }
     pub fn new(hour: i32, minute: i32, second: i32) -> TimeLen {
         let mut timl = TimeLen { hour, minute, second };
         timl.simple();
         timl
     }
-    pub fn total_seconds(&self) -> i32 {
+    pub fn from_tuple(tpl: (i32, i32, i32)) -> TimeLen {
+        TimeLen::new(tpl.0, tpl.1, tpl.2)
+    }
+    pub const fn total_seconds(&self) -> i32 {
         self.hour * 3600 + self.minute * 60 + self.second
     }
-    pub fn hour(&self) -> i32 {
+    pub const fn hour(&self) -> i32 {
         self.hour
     }
-    pub fn minute(&self) -> i32 {
+    pub const fn minute(&self) -> i32 {
         self.minute
     }
-    pub fn second(&self) -> i32 {
+    pub const fn second(&self) -> i32 {
         self.second
     }
     fn simple(&mut self) {

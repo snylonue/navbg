@@ -49,7 +49,7 @@ impl Basetask {
         Basetask { name:name.into(), priority, progress, create_time: Utc::now(), tid: ngtools::random_hash() }
     }
     pub fn from_details<S>(name: S, priority: i32, progress: ngtools::Progress, create_time: chrono::DateTime<Utc>, tid: u64) -> Basetask
-    where S: Into<String>
+        where S: Into<String>
     {
         Basetask { name:name.into(), priority, progress, create_time, tid }
     }
