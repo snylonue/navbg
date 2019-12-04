@@ -1,4 +1,4 @@
-mod episode;
+pub mod episode;
 
 use chrono;
 use chrono::Utc;

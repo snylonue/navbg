@@ -1,4 +1,3 @@
-use serde_json;
 use serde::Serialize;
 use serde::Deserialize;
 use chrono;
