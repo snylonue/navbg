@@ -1,16 +1,16 @@
 #[cfg(test)]
 mod tests {
-	use ngtools::random_hash;
-	use video::*;
+    use ngtools::random_hash;
+    use video::*;
     use video::episode::*;
-	use basetask::*;
-	use chrono::prelude::*;
+    use basetask::*;
+    use chrono::prelude::*;
 
     #[test]
     fn test_eps() {
-        let ep1 = Episode::new("1", "ep", "伝統ある古典部の再生", Status::Watched);
-        let ep2 = Episode::new("2", "ep", "名誉ある古典部の活動", Status::Watched);
-        let ep3 = Episode::new("3", "ep", "事情ある古典部の末裔", Status::Watched);
+        let ep1 = Episode::new("1", "season 1", "伝統ある古典部の再生", Status::Watched);
+        let ep2 = Episode::new("2", "season 1", "名誉ある古典部の活動", Status::Watched);
+        let ep3 = Episode::new("3", "season 1", "事情ある古典部の末裔", Status::Watched);
         let mut eps1 = Episodes::new();
         let in1 = eps1.insert(ep1.clone());
         assert_eq!(in1, None);
@@ -27,22 +27,40 @@ mod tests {
         let keys = eps1.types();
         for i in keys {
             match i.as_str() {
-                "ep" => (),
+                "season 1" => (),
                 _ => panic!()
             };
         }
         assert_eq!(eps2.len(), 3);
     }
     #[test]
+    fn test_eps_iter() {
+        let ep1 = Episode::new("1", "season 1", "伝統ある古典部の再生", Status::Watched);
+        let ep2 = Episode::new("2", "season 1", "名誉ある古典部の活動", Status::Watched);
+        let ep3 = Episode::new("3", "season 1", "事情ある古典部の末裔", Status::Watched);
+        let vec_eps = vec![ep1.clone(), ep2.clone(), ep3.clone()];
+        let eps = Episodes::from_vec(vec_eps.clone());
+        for (ep, vep) in eps.iter().zip(vec_eps.iter()) {
+            assert_eq!(ep.chap, vep.chap);
+            assert_eq!(ep.name, vep.name);
+            assert_eq!(ep.ep_type, vep.ep_type);
+        }
+        for (ep, vep) in eps.into_iter().zip(vec_eps.iter()) {
+            assert_eq!(ep.chap, vep.chap);
+            assert_eq!(ep.name, vep.name);
+            assert_eq!(ep.ep_type, vep.ep_type);
+        }
+    }
+    #[test]
     fn test_tasks_video() {
         type Ep = Episode;
         let te = Utc::now();
         let bt1 = Video::from_details("WHITE ALBUM2", Episodes::from_vec(
-                                      vec![Ep::new("1", "ep", "WHITE ALBUM", Status::Watching), Ep::new("2", "ep", "隣り合わせのピアノとギター", Status::Watching)]), Status::Watching, te, random_hash());
+                                      vec![Ep::new("1", "season 1", "WHITE ALBUM", Status::Watching), Ep::new("2", "season 1", "隣り合わせのピアノとギター", Status::Watching)]), Status::Watching, te, random_hash());
         let bt2 = Video::from_details("涼宮ハルヒの憂鬱", Episodes::from_vec(
-                                      vec![Ep::new("1", "ep", "満月は照らす獣を選んでる", Status::Watching), Ep::new("2", "ep", "学園の心臓部は庭園にあり", Status::Watching)]), Status::Watching, te, random_hash());
+                                      vec![Ep::new("1", "season 1", "満月は照らす獣を選んでる", Status::Watching), Ep::new("2", "season 1", "学園の心臓部は庭園にあり", Status::Watching)]), Status::Watching, te, random_hash());
         let bt3 = Video::from_details("BEASTARS", Episodes::from_vec(
-                                      vec![Ep::new("1", "ep", "朝比奈ミクルの冒険", Status::Watching), Ep::new("2", "ep", "涼宮ハルヒの憂鬱 I", Status::Watching)]), Status::Watching, te, random_hash());
+                                      vec![Ep::new("1", "season 1", "朝比奈ミクルの冒険", Status::Watching), Ep::new("2", "season 1", "涼宮ハルヒの憂鬱 I", Status::Watching)]), Status::Watching, te, random_hash());
         let mut bts1 = Tasks::new();
         let in1 = bts1.insert(bt1.clone());
         assert_eq!(in1, None);

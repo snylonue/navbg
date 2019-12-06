@@ -2,11 +2,14 @@ use serde::Serialize;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::collections::hash_map;
+use std::slice;
 
 use ngtools;
 use basetask;
 use basetask::Modify;
 use basetask::Read;
+
+static TYPED_INIT: Vec<Episode> = Vec::new();
 
 macro_rules! into {
     ($($s: ident),*) => {
@@ -22,7 +25,7 @@ macro_rules! optn {
     };
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Copy, Clone)]
 pub enum Status {
     Wish,
     Unwatched,
@@ -43,6 +46,10 @@ pub struct Episode {
     pub name: String,
     pub status: Status,
 }
+pub struct Iter<'a> {
+    types: hash_map::Values<'a, String, Vec<Episode>>,
+    typed: slice::Iter<'a, Episode>,
+}
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Episodes {
     eps: HashMap<String, Vec<Episode>>,
@@ -52,7 +59,7 @@ impl Epinfo {
     pub fn with_ep<S>(chap: S) -> Epinfo
         where S: Into<String>
     {
-        Epinfo { ep_type: String::from("ep"), chap: chap.into() }
+        Epinfo { ep_type: String::from("season 1"), chap: chap.into() }
     }
 }
 impl Episode {
@@ -66,7 +73,7 @@ impl Episode {
 impl ngtools::Json for Episode {}
 impl Default for Episode {
     fn default() -> Episode {
-        Episode::new("1", "ep", "", Status::Unwatched)
+        Episode::new("1", "season 1", "", Status::Unwatched)
     }
 }
 impl Episodes {
@@ -96,6 +103,9 @@ impl Episodes {
             length += i.len();
         }
         length
+    }
+    pub fn iter(&self) -> Iter {
+        Iter { types: self.eps.values(), typed: TYPED_INIT.iter() }
     }
 }
 impl ngtools::Json for Episodes {}
@@ -130,5 +140,26 @@ impl Read for Episodes {
     fn get(&self, key: &Self::Key) -> Option<&Self::Task> {
         let etp = optn!(self.eps.get(&key.ep_type));
         etp.iter().find(|ep| { ep.chap == key.chap })
+    }
+}
+impl<'a> IntoIterator for &'a Episodes {
+    type Item = &'a Episode;
+    type IntoIter = Iter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+impl<'a> Iterator for Iter<'a> {
+    type Item = &'a Episode;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.typed.next() {
+            Some(v) => return Some(&v),
+            None => {
+                self.typed = optn!(self.types.next()).iter();
+                self.typed.next()
+            }
+        }
     }
 }
