@@ -28,17 +28,17 @@ pub trait Tid {
     fn change_tid_v(&mut self, tid: u64);
 }
 pub trait Modify {
-    type Task;
+    type Item;
     type Key;
 
-    fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task>;
-    fn remove(&mut self, key: &Self::Key) -> Option<Self::Task>;
+    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item>;
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Item>;
 }
 pub trait Read {
-    type Task;
+    type Item;
     type Key;
 
-    fn get(&self, key: &Self::Key) -> Option<&Self::Task>;
+    fn get(&self, key: &Self::Key) -> Option<&Self::Item>;
 }
 
 impl Basetask {
@@ -102,23 +102,23 @@ impl<T> ngtools::Json for Tasks<T> {}
 impl<T> Modify for Tasks<T>
     where T: Tid
 {
-    type Task = T;
+    type Item = T;
     type Key = u64;
 
-    fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
+    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item> {
         self.task.insert(new_task.tid(), new_task)
     }
-    fn remove(&mut self, key: &Self::Key) -> Option<Self::Task> {
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
         self.task.remove(key)
     }
 }
 impl<T> Read for Tasks<T>
     where T: Tid
 {
-    type Task = T;
+    type Item = T;
     type Key = u64;
 
-    fn get(&self, key: &Self::Key) -> Option<&Self::Task> {
+    fn get(&self, key: &Self::Key) -> Option<&Self::Item> {
         self.task.get(key)
     }
 }

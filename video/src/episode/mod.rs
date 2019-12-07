@@ -1,7 +1,6 @@
 use serde::Serialize;
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::collections::hash_map;
 use std::collections::hash_map::Entry;
 use std::slice;
 
@@ -81,7 +80,7 @@ impl Episode {
 }
 impl ngtools::Json for Episode {}
 impl Default for Episode {
-    fn default() -> Episode {
+    fn default() -> Self {
         Episode::new("1", "season 1", "", Status::Unwatched)
     }
 }
@@ -120,10 +119,10 @@ impl Episodes {
 }
 impl ngtools::Json for Episodes {}
 impl Modify for Episodes {
-    type Task = Episode;
+    type Item = Episode;
     type Key = Epinfo;
 
-    fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
+    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item> {
         let etp = match self.eps.entry(new_task.ep_type.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => {
@@ -143,7 +142,7 @@ impl Modify for Episodes {
             },
         }
     }
-    fn remove(&mut self, key: &Self::Key) -> Option<Self::Task> {
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
         let etp = optn!(self.eps.get_mut(&key.ep_type));
         let indx = optn!(etp.iter().position(|ep| { ep.chap == key.chap }));
         let remove = etp.remove(indx);
@@ -155,12 +154,17 @@ impl Modify for Episodes {
     }
 }
 impl Read for Episodes {
-    type Task = Episode;
+    type Item = Episode;
     type Key = Epinfo;
 
-    fn get(&self, key: &Self::Key) -> Option<&Self::Task> {
+    fn get(&self, key: &Self::Key) -> Option<&Self::Item> {
         let etp = optn!(self.eps.get(&key.ep_type));
         etp.iter().find(|ep| { ep.chap == key.chap })
+    }
+}
+impl Default for Episodes {
+    fn default() -> Self {
+        Episodes::new()
     }
 }
 impl<'a> IntoIterator for &'a Episodes {

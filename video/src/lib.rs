@@ -34,6 +34,9 @@ impl Video {
         let progress = ngtools::Progress::new(0, eps.len() as u32);
         Video { name: name.into(), eps, status, progress, create_time, tid }
     }
+    pub fn iter(&self) -> Iter<> {
+        self.eps.iter()
+    }
 }
 impl ngtools::Json for Video {}
 impl Tid for Video {
@@ -45,5 +48,29 @@ impl Tid for Video {
     }
     fn change_tid_v(&mut self, tid: u64) {
         self.tid = tid;
+    }
+}
+impl Default for Video {
+    fn default() -> Self {
+        Video::new("", Default::default())
+    }
+}
+impl basetask::Modify for Video {
+    type Item = Episode;
+    type Key = Epinfo;
+
+    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item> {
+        self.eps.insert(new_task)
+    }
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
+        self.eps.remove(key)
+    }
+}
+impl<'a> IntoIterator for &'a Video {
+    type Item = &'a Episode;
+    type IntoIter = Iter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }

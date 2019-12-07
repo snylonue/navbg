@@ -66,7 +66,7 @@ impl Progress {
 }
 impl Json for Progress {}
 impl Default for Progress {
-    fn default() -> Progress {
+    fn default() -> Self {
         Progress { finished: 0, total: 1 }
     }
 }
@@ -104,7 +104,7 @@ impl TimeLen {
 }
 impl Json for TimeLen {}
 impl Default for TimeLen {
-    fn default() -> TimeLen {
+    fn default() -> Self {
         TimeLen { hour: 0, minute: 0, second: 0 }
     }
 }
