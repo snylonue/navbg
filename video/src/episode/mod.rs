@@ -2,6 +2,7 @@ use serde::Serialize;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::collections::hash_map;
+use std::collections::hash_map::Entry;
 use std::slice;
 
 use ngtools;
@@ -46,13 +47,15 @@ pub struct Episode {
     pub name: String,
     pub status: Status,
 }
-pub struct Iter<'a> {
-    types: hash_map::Values<'a, String, Vec<Episode>>,
-    typed: slice::Iter<'a, Episode>,
-}
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Episodes {
     eps: HashMap<String, Vec<Episode>>,
+    types: Vec<String>,
+}
+pub struct Iter<'a> {
+    items: &'a HashMap<String, Vec<Episode>>,
+    types: slice::Iter<'a, String>,
+    typed: slice::Iter<'a, Episode>,
 }
 
 impl Epinfo {
@@ -78,7 +81,7 @@ impl Default for Episode {
 }
 impl Episodes {
     pub fn new() -> Episodes {
-        Episodes { eps: HashMap::new() }
+        Episodes { eps: HashMap::new(), types: Vec::new() }
     }
     pub fn from_vec(veceps: Vec<Episode>) -> Episodes {
         let mut eps = Episodes::new();
@@ -94,8 +97,8 @@ impl Episodes {
         }
         eps
     }
-    pub fn types(&self) -> hash_map::Keys<String, Vec<Episode>> {
-        self.eps.keys()
+    pub fn types(&self) -> &Vec<String> {
+        &self.types
     }
     pub fn len(&self) -> usize {
         let mut length = 0;
@@ -105,7 +108,8 @@ impl Episodes {
         length
     }
     pub fn iter(&self) -> Iter {
-        Iter { types: self.eps.values(), typed: TYPED_INIT.iter() }
+        let types = self.types.iter();
+        Iter { items: &self.eps, types, typed: TYPED_INIT.iter() }
     }
 }
 impl ngtools::Json for Episodes {}
@@ -114,7 +118,13 @@ impl Modify for Episodes {
     type Key = Epinfo;
 
     fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
-        let etp = self.eps.entry(new_task.ep_type.clone()).or_insert(vec![]);
+        let etp = match self.eps.entry(new_task.ep_type.clone()) {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => {
+                self.types.push(new_task.ep_type.clone());
+                entry.insert(vec![])
+            },
+        };
         match etp.iter().position(|ep| { ep.chap == new_task.chap }) {
             Some(indx) => {
                 //[.., old_task, .., new_task] ->[.., new_task, ..]
@@ -127,10 +137,15 @@ impl Modify for Episodes {
             },
         }
     }
-    fn pop(&mut self, key: &Self::Key) -> Option<Self::Task> {
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Task> {
         let etp = optn!(self.eps.get_mut(&key.ep_type));
         let indx = optn!(etp.iter().position(|ep| { ep.chap == key.chap }));
-        Some(etp.remove(indx))
+        let remove = etp.remove(indx);
+        if etp.len() == 0 {
+            self.types.remove(self.types.iter().position(|ty| *ty == remove.ep_type).unwrap());
+            self.eps.remove(&remove.ep_type);
+        }
+        Some(remove)
     }
 }
 impl Read for Episodes {
@@ -157,7 +172,8 @@ impl<'a> Iterator for Iter<'a> {
         match self.typed.next() {
             Some(v) => return Some(&v),
             None => {
-                self.typed = optn!(self.types.next()).iter();
+                let new_type = optn!(self.types.next());
+                self.typed = self.items[new_type].iter();
                 self.typed.next()
             }
         }

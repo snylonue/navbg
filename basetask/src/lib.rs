@@ -32,7 +32,7 @@ pub trait Modify {
     type Key;
 
     fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task>;
-    fn pop(&mut self, key: &Self::Key) -> Option<Self::Task>;
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Task>;
 }
 pub trait Read {
     type Task;
@@ -68,27 +68,25 @@ impl ngtools::Json for Basetask {}
 impl<T> Tasks<T> 
     where T: Tid
 {
-    //from_array() seems slow because of clone()
-    //need to optimize
     pub fn new() -> Tasks<T> {
         Tasks { task: HashMap::new() }
     }
     pub fn from_vec(vectasks: Vec<T>) -> Tasks<T> {
-        let mut task = Tasks::new();
+        let mut tasks = Tasks::new();
         for i in vectasks {
-            task.insert(i);
+            tasks.insert(i);
         }
-        task
+        tasks
     }
     //may be removed
     pub fn from_array(arrtasks: &[T]) -> Tasks<T>
         where T: Clone
     {
-        let mut task = Tasks::new();
+        let mut tasks = Tasks::new();
         for i in arrtasks.iter() {
-            task.insert(i.clone());
+            tasks.insert(i.clone());
         }
-        task
+        tasks
     }
     pub fn tasks(&self) -> hash_map::Keys<u64, T> {
         self.task.keys()
@@ -110,7 +108,7 @@ impl<T> Modify for Tasks<T>
     fn insert(&mut self, new_task: Self::Task) -> Option<Self::Task> {
         self.task.insert(new_task.tid(), new_task)
     }
-    fn pop(&mut self, key: &Self::Key) -> Option<Self::Task> {
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Task> {
         self.task.remove(key)
     }
 }

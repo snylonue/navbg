@@ -20,9 +20,9 @@ mod tests {
         eps1.insert(ep3.clone());
         let eps2 = Episodes::from_vec(vec![ep1.clone(), ep2.clone(), ep3.clone()]);
         assert_eq!(eps2, eps1);
-        let out1 = eps1.pop(&Epinfo::with_ep("1"));
+        let out1 = eps1.remove(&Epinfo::with_ep("1"));
         assert_eq!(out1, Some(ep1.clone()));
-        let out2 = eps1.pop(&Epinfo::with_ep("10"));
+        let out2 = eps1.remove(&Epinfo::with_ep("10"));
         assert_eq!(out2, None);
         let keys = eps1.types();
         for i in keys {
@@ -72,7 +72,7 @@ mod tests {
         let bts3 = Tasks::from_array(&[bt1.clone(),bt2.clone()]);
         assert_eq!(bts3, bts2);
         let mut bts4 = Tasks::from_vec(vec![bt1.clone(),bt2.clone(),bt3.clone()]);
-        let out1 = bts4.pop(&bt3.tid());
+        let out1 = bts4.remove(&bt3.tid());
         assert_eq!(out1, Some(bt3.clone()));
         assert_eq!(bts2, bts4);
         assert_eq!(bts4.len(), 2);
