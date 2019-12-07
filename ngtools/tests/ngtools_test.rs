@@ -9,16 +9,16 @@ mod test {
         assert_eq!(prog, Progress::new(3, 3));
     }
     #[test]
-    fn test_progress_set_progress() {
+    fn test_progress_set_finished() {
         let mut prog = Progress::new(1, 3);
-        prog.set_progress(2).unwrap();
+        prog.set_finished(2).unwrap();
         assert_eq!(prog, Progress::new(2, 3));
     }
     #[test]
     #[should_panic]
-    fn test_progress_set_progress_panic() {
+    fn test_progress_set_finshed_panic() {
         let mut prog = Progress::new(1, 3);
-        prog.set_progress(6).unwrap();
+        prog.set_finished(6).unwrap();
     }
     #[test]
     fn test_progress_set_total() {

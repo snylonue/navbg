@@ -35,18 +35,27 @@ impl Progress {
     pub fn finish(&mut self) {
         self.finished = self.total;
     }
-    pub fn set_progress(&mut self, new_progress: u32) -> Result<(), &'static str> {
-        if new_progress > self.total {
-            Err("new progress is larger than total")
+    pub fn set_finished(&mut self, new_finished: u32) -> Result<(), &'static str> {
+        if new_finished > self.total {
+            Err("new finished is larger than total")
         } else {
-            self.finished = new_progress;
+            self.finished = new_finished;
             Ok(())
         }
     }
     pub fn set_total(&mut self, new_total: u32) -> Result<(), &'static str> {
-        if new_total < self.finished {
+        if self.finished > new_total {
             Err("new total is smaller than finished")
         } else {
+            self.total = new_total;
+            Ok(())
+        }
+    }
+    pub fn set_progress(&mut self, new_finished: u32, new_total: u32) -> Result<(), &'static str> {
+        if new_finished > new_total {
+            Err("new finished is larger than total")
+        } else {
+            self.finished = new_finished;
             self.total = new_total;
             Ok(())
         }

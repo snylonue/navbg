@@ -46,6 +46,9 @@ impl Video {
     pub fn progress(&self) -> ngtools::Progress {
         self.progress
     }
+    pub fn watched(&self) -> u32 {
+        self.progress.finished()
+    }
 }
 impl ngtools::Json for Video {}
 impl Tid for Video {
@@ -68,11 +71,16 @@ impl basetask::Modify for Video {
     type Item = Episode;
     type Key = Epinfo;
 
-    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item> {
-        self.eps.insert(new_task)
+    ///progress will be updated after modify
+    fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item> {
+        let res = self.eps.insert(new_item);
+        self.progress.set_progress(self.eps.watched(), self.eps.len() as u32);
+        res
     }
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
-        self.eps.remove(key)
+        let res = self.eps.remove(key);
+        self.progress.set_progress(self.eps.watched(), self.eps.len() as u32);
+        res
     }
 }
 impl<'a> IntoIterator for &'a Video {

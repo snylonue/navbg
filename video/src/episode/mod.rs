@@ -132,22 +132,22 @@ impl Modify for Episodes {
     type Item = Episode;
     type Key = Epinfo;
 
-    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item> {
-        let etp = match self.eps.entry(new_task.ep_type.clone()) {
+    fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item> {
+        let etp = match self.eps.entry(new_item.ep_type.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => {
-                self.types.push(new_task.ep_type.clone());
+                self.types.push(new_item.ep_type.clone());
                 entry.insert(vec![])
             },
         };
-        match etp.iter().position(|ep| { ep.chap == new_task.chap }) {
+        match etp.iter().position(|ep| { ep.chap == new_item.chap }) {
             Some(indx) => {
-                //[.., old_task, .., new_task] ->[.., new_task, ..]
-                etp.push(new_task);
+                //[.., old_item, ..], new_item -> [.., old_item, .., new_item] ->[.., new_item, ..], old_item
+                etp.push(new_item);
                 Some(etp.swap_remove(indx))
             },
             None => {
-                etp.push(new_task);
+                etp.push(new_item);
                 None
             },
         }

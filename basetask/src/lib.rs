@@ -31,14 +31,16 @@ pub trait Modify {
     type Item;
     type Key;
 
-    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item>;
+    fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item>;
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item>;
 }
 pub trait Read {
     type Item;
     type Key;
+    type Iter;
 
     fn get(&self, key: &Self::Key) -> Option<&Self::Item>;
+    fn iter(&self) -> 
 }
 
 impl Basetask {

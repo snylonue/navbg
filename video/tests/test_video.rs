@@ -75,4 +75,35 @@ mod tests {
         assert_eq!(bts2, bts4);
         assert_eq!(bts4.len(), 2);
     }
+    #[test]
+    fn test_video() {
+        let ep1 = Episode::new("1", "season 1", "伝統ある古典部の再生", Status::Watched);
+        let ep2 = Episode::new("2", "season 1", "名誉ある古典部の活動", Status::Watched);
+        let ep3 = Episode::new("3", "season 1", "事情ある古典部の末裔", Status::Watched);
+        let sp1 = Episode::new("11.5", "OVA", "持つべきものは", Status::Watched);
+        let vec_eps = vec![ep1.clone(), ep2.clone(), ep3.clone(), sp1];
+        let eps = Episodes::from_vec(vec_eps.clone());
+        let mut v1 = Video::new("氷菓", eps);
+        let finished = v1.progress().finished();
+        assert_eq!(finished, 4);
+        let out1 = v1.remove(&Epinfo::with_ep("1"));
+        assert_eq!(out1, Some(ep1.clone()));
+        assert_eq!(v1.len(), 3);
+        let in1 = v1.insert(ep1.clone());
+        assert_eq!(in1, None);
+        assert_eq!(v1.len(), 4);
+    }
+    #[test]
+    fn test_tasks_video_iter() {
+        let ep1 = Episode::new("1", "season 1", "伝統ある古典部の再生", Status::Watched);
+        let ep2 = Episode::new("2", "season 1", "名誉ある古典部の活動", Status::Watched);
+        let ep3 = Episode::new("3", "season 1", "事情ある古典部の末裔", Status::Watched);
+        let sp1 = Episode::new("11.5", "OVA", "持つべきものは", Status::Watched);
+        let vec_eps = vec![ep1.clone(), ep2.clone(), ep3.clone(), sp1];
+        let eps = Episodes::from_vec(vec_eps.clone());
+        let v1 = Video::new("氷菓", eps);
+        for (i, i2) in v1.into_iter().zip(vec_eps.iter()) {
+            assert_eq!(i, i2);
+        }
+    }
 }
