@@ -105,6 +105,16 @@ impl Episodes {
     pub fn types(&self) -> &Vec<String> {
         &self.types
     }
+    pub fn watched(&self) -> u32 {
+        let mut counter = 0;
+        for i in self.iter() {
+            match i.status {
+                Status::Watched => counter += 1,
+                _ => (),
+            };
+        }
+        counter
+    }
     pub fn len(&self) -> usize {
         let mut length = 0;
         for i in self.eps.values() {

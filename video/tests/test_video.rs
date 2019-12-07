@@ -30,6 +30,7 @@ mod tests {
         let keys = eps3.types();
         assert_eq!(keys, &vec!["season 1".to_string(), "OVA".to_string()]);
         assert_eq!(eps3.len(), 4);
+        assert_eq!(eps3.watched(), 4);
         eps3.remove(&Epinfo::new("OVA", "11.5"));
         assert_eq!(eps2, eps3);
     }
@@ -41,14 +42,10 @@ mod tests {
         let vec_eps = vec![ep1.clone(), ep2.clone(), ep3.clone()];
         let eps = Episodes::from_vec(vec_eps.clone());
         for (ep, vep) in eps.iter().zip(vec_eps.iter()) {
-            assert_eq!(ep.chap, vep.chap);
-            assert_eq!(ep.name, vep.name);
-            assert_eq!(ep.ep_type, vep.ep_type);
+            assert_eq!(ep, vep);
         }
         for (ep, vep) in eps.into_iter().zip(vec_eps.iter()) {
             assert_eq!(ep.chap, vep.chap);
-            assert_eq!(ep.name, vep.name);
-            assert_eq!(ep.ep_type, vep.ep_type);
         }
     }
     #[test]
