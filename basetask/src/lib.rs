@@ -17,7 +17,7 @@ pub struct Basetask {
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Tasks<T> {
-    task: HashMap<u64, T>,
+    tasks: HashMap<u64, T>,
 }
 
 pub trait Tid {
@@ -69,7 +69,7 @@ impl<T> Tasks<T>
     where T: Tid
 {
     pub fn new() -> Tasks<T> {
-        Tasks { task: HashMap::new() }
+        Tasks { tasks: HashMap::new() }
     }
     pub fn from_vec(vectasks: Vec<T>) -> Tasks<T> {
         let mut tasks = Tasks::new();
@@ -89,13 +89,16 @@ impl<T> Tasks<T>
         tasks
     }
     pub fn tasks(&self) -> hash_map::Keys<u64, T> {
-        self.task.keys()
+        self.tasks.keys()
     }
     pub fn tids(&self) -> hash_map::Values<u64, T> {
-        self.task.values()
+        self.tasks.values()
     }
     pub fn len(&self) -> usize {
-        self.task.len()
+        self.tasks.len()
+    }
+    pub fn iter(&self) -> hash_map::Values<u64, T> {
+        self.tasks.values()
     }
 }
 impl<T> ngtools::Json for Tasks<T> {}
@@ -106,10 +109,10 @@ impl<T> Modify for Tasks<T>
     type Key = u64;
 
     fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item> {
-        self.task.insert(new_item.tid(), new_item)
+        self.tasks.insert(new_item.tid(), new_item)
     }
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
-        self.task.remove(key)
+        self.tasks.remove(key)
     }
 }
 impl<T> Read for Tasks<T>
@@ -119,6 +122,16 @@ impl<T> Read for Tasks<T>
     type Key = u64;
 
     fn get(&self, key: &Self::Key) -> Option<&Self::Item> {
-        self.task.get(key)
+        self.tasks.get(key)
+    }
+}
+impl<'a, T> IntoIterator for &'a Tasks<T>
+    where T: Tid
+{
+    type Item = &'a T;
+    type IntoIter = hash_map::Values<'a, u64, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
