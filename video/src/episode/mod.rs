@@ -59,6 +59,12 @@ pub struct Iter<'a> {
 }
 
 impl Epinfo {
+    pub fn new<S>(ep_type: S, chap: S) -> Epinfo
+        where S: Into<String>
+    {
+        into!(ep_type, chap);
+        Epinfo { ep_type, chap }
+    }
     pub fn with_ep<S>(chap: S) -> Epinfo
         where S: Into<String>
     {

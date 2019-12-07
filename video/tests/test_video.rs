@@ -11,6 +11,7 @@ mod tests {
         let ep1 = Episode::new("1", "season 1", "伝統ある古典部の再生", Status::Watched);
         let ep2 = Episode::new("2", "season 1", "名誉ある古典部の活動", Status::Watched);
         let ep3 = Episode::new("3", "season 1", "事情ある古典部の末裔", Status::Watched);
+        let sp1 = Episode::new("11.5", "OVA", "持つべきものは", Status::Watched);
         let mut eps1 = Episodes::new();
         let in1 = eps1.insert(ep1.clone());
         assert_eq!(in1, None);
@@ -20,18 +21,17 @@ mod tests {
         eps1.insert(ep3.clone());
         let eps2 = Episodes::from_vec(vec![ep1.clone(), ep2.clone(), ep3.clone()]);
         assert_eq!(eps2, eps1);
+        let mut eps3 = eps1.clone();
         let out1 = eps1.remove(&Epinfo::with_ep("1"));
         assert_eq!(out1, Some(ep1.clone()));
         let out2 = eps1.remove(&Epinfo::with_ep("10"));
         assert_eq!(out2, None);
-        let keys = eps1.types();
-        for i in keys {
-            match i.as_str() {
-                "season 1" => (),
-                _ => panic!()
-            };
-        }
-        assert_eq!(eps2.len(), 3);
+        eps3.insert(sp1.clone());
+        let keys = eps3.types();
+        assert_eq!(keys, &vec!["season 1".to_string(), "OVA".to_string()]);
+        assert_eq!(eps3.len(), 4);
+        eps3.remove(&Epinfo::new("OVA", "11.5"));
+        assert_eq!(eps2, eps3);
     }
     #[test]
     fn test_eps_iter() {
