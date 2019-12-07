@@ -35,7 +35,7 @@ use ngtools::*;
         let bts3 = Tasks::from_array(&[bt1.clone(),bt2.clone()]);
         assert_eq!(bts3, bts2);
         let mut bts4 = Tasks::from_vec(vec![bt1.clone(),bt2.clone(),bt3.clone()]);
-        let out1 = bts4.pop(&bt3.tid());
+        let out1 = bts4.remove(&bt3.tid());
         assert_eq!(out1, Some(bt3.clone()));
         assert_eq!(bts2, bts4);
         assert_eq!(bts4.len(), 2);

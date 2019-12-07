@@ -37,10 +37,8 @@ pub trait Modify {
 pub trait Read {
     type Item;
     type Key;
-    type Iter;
 
     fn get(&self, key: &Self::Key) -> Option<&Self::Item>;
-    fn iter(&self) -> 
 }
 
 impl Basetask {
@@ -107,8 +105,8 @@ impl<T> Modify for Tasks<T>
     type Item = T;
     type Key = u64;
 
-    fn insert(&mut self, new_task: Self::Item) -> Option<Self::Item> {
-        self.task.insert(new_task.tid(), new_task)
+    fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item> {
+        self.task.insert(new_item.tid(), new_item)
     }
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
         self.task.remove(key)
@@ -124,4 +122,3 @@ impl<T> Read for Tasks<T>
         self.task.get(key)
     }
 }
-//impl<T> Iterator for Tasks<T> {}
