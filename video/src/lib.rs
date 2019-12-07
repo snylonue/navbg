@@ -6,6 +6,7 @@ use serde::Serialize;
 use serde::Deserialize;
 
 use ngtools;
+use ngtools::random_hash;
 use basetask;
 use basetask::Tid;
 use episode::*;
@@ -13,29 +14,37 @@ use episode::*;
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Video {
     pub name: String,
-    pub eps: Episodes,
     pub status: Status,
-    pub progress: ngtools::Progress,
     pub create_time: chrono::DateTime<Utc>,
+    eps: Episodes,
+    progress: ngtools::Progress,
     tid: u64,
 }
 
 impl Video {
-    //field progress is autoly built
+    ///Field progress is automatically built
     pub fn new<S>(name: S, eps: Episodes) -> Video
         where S: Into<String>
     {
-        let progress = ngtools::Progress::new(0, eps.len() as u32);
-        Video { name: name.into(), eps, status: Status::Watching, progress, create_time: Utc::now(), tid: ngtools::random_hash() }
+        Video::with_details(name, eps, Status::Watching, Utc::now(), random_hash())
     }
-    pub fn from_details<S>(name: S, eps: Episodes, status: Status, create_time: chrono::DateTime<Utc>, tid: u64) -> Video
+    pub fn with_details<S>(name: S, eps: Episodes, status: Status, create_time: chrono::DateTime<Utc>, tid: u64) -> Video
         where S: Into<String>
     {
-        let progress = ngtools::Progress::new(0, eps.len() as u32);
+        let progress = ngtools::Progress::new(eps.watched(), eps.len() as u32);
         Video { name: name.into(), eps, status, progress, create_time, tid }
     }
-    pub fn iter(&self) -> Iter<> {
+    pub fn iter(&self) -> Iter {
         self.eps.iter()
+    }
+    pub fn len(&self) -> usize {
+        self.progress.total() as usize
+    }
+    pub fn eps(&self) -> &Episodes {
+        &self.eps
+    }
+    pub fn progress(&self) -> ngtools::Progress {
+        self.progress
     }
 }
 impl ngtools::Json for Video {}

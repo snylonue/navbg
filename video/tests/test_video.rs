@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use ngtools::Progress;
     use ngtools::random_hash;
     use video::*;
     use video::episode::*;
@@ -52,11 +53,11 @@ mod tests {
     fn test_tasks_video() {
         type Ep = Episode;
         let te = Utc::now();
-        let bt1 = Video::from_details("WHITE ALBUM2", Episodes::from_vec(
+        let bt1 = Video::with_details("WHITE ALBUM2", Episodes::from_vec(
                                       vec![Ep::new("1", "season 1", "WHITE ALBUM", Status::Watching), Ep::new("2", "season 1", "隣り合わせのピアノとギター", Status::Watching)]), Status::Watching, te, random_hash());
-        let bt2 = Video::from_details("涼宮ハルヒの憂鬱", Episodes::from_vec(
+        let bt2 = Video::with_details("涼宮ハルヒの憂鬱", Episodes::from_vec(
                                       vec![Ep::new("1", "season 1", "満月は照らす獣を選んでる", Status::Watching), Ep::new("2", "season 1", "学園の心臓部は庭園にあり", Status::Watching)]), Status::Watching, te, random_hash());
-        let bt3 = Video::from_details("BEASTARS", Episodes::from_vec(
+        let bt3 = Video::with_details("BEASTARS", Episodes::from_vec(
                                       vec![Ep::new("1", "season 1", "朝比奈ミクルの冒険", Status::Watching), Ep::new("2", "season 1", "涼宮ハルヒの憂鬱 I", Status::Watching)]), Status::Watching, te, random_hash());
         let mut bts1 = Tasks::new();
         let in1 = bts1.insert(bt1.clone());
