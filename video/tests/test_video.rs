@@ -2,6 +2,7 @@
 mod tests {
     use ngtools::Progress;
     use ngtools::random_hash;
+    use ngtools::Json;
     use video::*;
     use video::episode::*;
     use basetask::*;
@@ -105,5 +106,18 @@ mod tests {
         for (i, i2) in v1.into_iter().zip(vec_eps.iter()) {
             assert_eq!(i, i2);
         }
+    }
+    #[test]
+    fn test_json() {
+        let ep1 = Episode::new("1", "season 1", "伝統ある古典部の再生", Status::Watched);
+        let ep2 = Episode::new("2", "season 1", "名誉ある古典部の活動", Status::Watched);
+        let ep3 = Episode::new("3", "season 1", "事情ある古典部の末裔", Status::Watched);
+        let sp1 = Episode::new("11.5", "OVA", "持つべきものは", Status::Watched);
+        let vec_eps = vec![ep1.clone(), ep2.clone(), ep3.clone(), sp1];
+        let eps = Episodes::from_vec(vec_eps.clone());
+        let v1 = Video::new("氷菓", eps);
+        let json_v1 = v1.to_json().unwrap();
+        let v2 = Video::from_str(&json_v1).unwrap();
+        assert_eq!(v1, v2);
     }
 }

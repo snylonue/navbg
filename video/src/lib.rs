@@ -2,6 +2,7 @@ pub mod episode;
 
 use chrono;
 use chrono::Utc;
+use serde_json;
 use serde::Serialize;
 use serde::Deserialize;
 
@@ -33,6 +34,9 @@ impl Video {
     {
         let progress = ngtools::Progress::new(eps.watched(), eps.len() as u32);
         Video { name: name.into(), eps, status, progress, create_time, tid }
+    }
+    pub fn from_str(json: &str) -> Result<Video, serde_json::error::Error> {
+        serde_json::from_str(&json)
     }
     pub fn iter(&self) -> Iter {
         self.eps.iter()

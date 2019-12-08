@@ -22,7 +22,7 @@ pub struct TimeLen {
 
 pub trait Json {
     fn to_json(&self) -> Result<String, serde_json::error::Error>
-        where Self:Serialize
+        where Self: Serialize
     {
         serde_json::to_string(&self)
     }
