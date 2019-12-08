@@ -74,12 +74,12 @@ impl basetask::Modify for Video {
     ///progress will be updated after modify
     fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item> {
         let res = self.eps.insert(new_item);
-        self.progress.set_progress(self.eps.watched(), self.eps.len() as u32);
+        self.progress.set_progress(self.eps.watched(), self.eps.len() as u32).unwrap();
         res
     }
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
         let res = self.eps.remove(key);
-        self.progress.set_progress(self.eps.watched(), self.eps.len() as u32);
+        self.progress.set_progress(self.eps.watched(), self.eps.len() as u32).unwrap();
         res
     }
 }

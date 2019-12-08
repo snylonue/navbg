@@ -16,14 +16,6 @@ macro_rules! into {
         $(let $s = $s.into();)*
     };
 }
-macro_rules! optn {
-    ($x: expr) => {
-            match $x {
-                Some(some) => some,
-                None => return None,
-            };
-    };
-}
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Copy, Clone)]
 pub enum Status {
@@ -153,8 +145,8 @@ impl Modify for Episodes {
         }
     }
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
-        let etp = optn!(self.eps.get_mut(&key.ep_type));
-        let indx = optn!(etp.iter().position(|ep| { ep.chap == key.chap }));
+        let etp = self.eps.get_mut(&key.ep_type)?;
+        let indx = etp.iter().position(|ep| { ep.chap == key.chap })?;
         let remove = etp.remove(indx);
         if etp.len() == 0 {
             self.types.remove(self.types.iter().position(|ty| *ty == remove.ep_type).unwrap());
@@ -168,8 +160,7 @@ impl Read for Episodes {
     type Key = Epinfo;
 
     fn get(&self, key: &Self::Key) -> Option<&Self::Item> {
-        let etp = optn!(self.eps.get(&key.ep_type));
-        etp.iter().find(|ep| { ep.chap == key.chap })
+        self.eps.get(&key.ep_type)?.iter().find(|ep| { ep.chap == key.chap })
     }
 }
 impl Default for Episodes {
@@ -192,7 +183,7 @@ impl<'a> Iterator for Iter<'a> {
         match self.typed.next() {
             Some(v) => return Some(&v),
             None => {
-                let new_type = optn!(self.types.next());
+                let new_type = self.types.next()?;
                 self.typed = self.items[new_type].iter();
                 self.typed.next()
             }
