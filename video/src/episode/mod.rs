@@ -1,5 +1,7 @@
 use serde::Serialize;
 use serde::Deserialize;
+use indexmap::map;
+use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::slice;
@@ -9,7 +11,7 @@ use basetask;
 use basetask::Modify;
 use basetask::Read;
 
-static TYPED_INIT: Vec<Episode> = Vec::new();
+static EMPTY_VEC: Vec<Episode> = Vec::new();
 
 macro_rules! into {
     ($($s: ident),*) => {
@@ -40,12 +42,10 @@ pub struct Episode {
 }
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Episodes {
-    eps: HashMap<String, Vec<Episode>>,
-    types: Vec<String>,
+    eps: IndexMap<String, Vec<Episode>>,
 }
 pub struct Iter<'a> {
-    items: &'a HashMap<String, Vec<Episode>>,
-    types: slice::Iter<'a, String>,
+    types: map::Values<'a, String, Vec<Episode>>,
     typed: slice::Iter<'a, Episode>,
 }
 
@@ -78,7 +78,7 @@ impl Default for Episode {
 }
 impl Episodes {
     pub fn new() -> Episodes {
-        Episodes { eps: HashMap::new(), types: Vec::new() }
+        Episodes { eps: IndexMap::new() }
     }
     pub fn from_vec(veceps: Vec<Episode>) -> Episodes {
         let mut eps = Episodes::new();
@@ -94,8 +94,8 @@ impl Episodes {
         }
         eps
     }
-    pub fn types(&self) -> &Vec<String> {
-        &self.types
+    pub fn types(&self) -> map::Keys<String, Vec<Episode>> {
+        self.eps.keys()
     }
     pub fn watched(&self) -> u32 {
         let mut counter = 0;
@@ -115,8 +115,7 @@ impl Episodes {
         length
     }
     pub fn iter(&self) -> Iter {
-        let types = self.types.iter();
-        Iter { items: &self.eps, types, typed: TYPED_INIT.iter() }
+        Iter { types: self.eps.values(), typed: EMPTY_VEC.iter() }
     }
 }
 impl ngtools::Json for Episodes {}
@@ -125,23 +124,22 @@ impl Modify for Episodes {
     type Key = Epinfo;
 
     fn insert(&mut self, new_item: Self::Item) -> Option<Self::Item> {
-        let etp = match self.eps.entry(new_item.ep_type.clone()) {
-            Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => {
-                self.types.push(new_item.ep_type.clone());
-                entry.insert(vec![])
-            },
-        };
-        match etp.iter().position(|ep| { ep.chap == new_item.chap }) {
-            Some(indx) => {
-                //[.., old_item, ..], new_item -> [.., old_item, .., new_item] ->[.., new_item, ..], old_item
-                etp.push(new_item);
-                Some(etp.swap_remove(indx))
-            },
-            None => {
-                etp.push(new_item);
-                None
-            },
+        let etp = self.eps.entry(new_item.ep_type.clone()).or_insert(vec![]);
+        if etp.len() == 0 {
+            etp.push(new_item);
+            None
+        } else {
+            match etp.iter().position(|ep| { ep.chap == new_item.chap }) {
+                Some(indx) => {
+                    //[.., old_item, ..], new_item -> [.., old_item, .., new_item] ->[.., new_item, ..], old_i
+                    etp.push(new_item);
+                    Some(etp.swap_remove(indx))
+                },
+                None => {
+                    etp.push(new_item);
+                    None
+                },
+            }
         }
     }
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item> {
@@ -149,7 +147,6 @@ impl Modify for Episodes {
         let indx = etp.iter().position(|ep| { ep.chap == key.chap })?;
         let remove = etp.remove(indx);
         if etp.len() == 0 {
-            self.types.remove(self.types.iter().position(|ty| *ty == remove.ep_type).unwrap());
             self.eps.remove(&remove.ep_type);
         }
         Some(remove)
@@ -183,8 +180,7 @@ impl<'a> Iterator for Iter<'a> {
         match self.typed.next() {
             Some(v) => return Some(&v),
             None => {
-                let new_type = self.types.next()?;
-                self.typed = self.items[new_type].iter();
+                self.typed = self.types.next()?.iter();
                 self.typed.next()
             }
         }

@@ -30,7 +30,13 @@ mod tests {
         assert_eq!(out2, None);
         eps3.insert(sp1.clone());
         let keys = eps3.types();
-        assert_eq!(keys, &vec!["season 1".to_string(), "OVA".to_string()]);
+        for (i, j) in keys.zip(0..2) {
+            match i.as_str() {
+                "season 1" if j == 0 => (),
+                "OVA" if j == 1 => (),
+                _ => panic!("Test Episode.types() failed"),
+            };
+        }
         assert_eq!(eps3.len(), 4);
         assert_eq!(eps3.watched(), 4);
         eps3.remove(&Epinfo::new("OVA", "11.5"));
@@ -103,9 +109,12 @@ mod tests {
         let vec_eps = vec![ep1.clone(), ep2.clone(), ep3.clone(), sp1];
         let eps = Episodes::from_vec(vec_eps.clone());
         let v1 = Video::new("氷菓", eps);
-        for (i, i2) in v1.into_iter().zip(vec_eps.iter()) {
-            assert_eq!(i, i2);
+        let mut counter = 0;
+        for (i, j) in v1.into_iter().zip(0..4) {
+            assert_eq!(i, &vec_eps[j]);
+            counter += 1;
         }
+        assert_eq!(counter, 4);
     }
     #[test]
     fn test_json() {
